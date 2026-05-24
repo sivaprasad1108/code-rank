@@ -1,0 +1,7 @@
+FROM node:20-alpine
+
+RUN apk del apk-tools && \
+    rm -rf /var/cache/apk/*
+
+USER nobody
+WORKDIR /code

@@ -1,0 +1,32 @@
+export type NavLink = {
+  label: string
+  href: string
+  iconName: string
+}
+
+export type MenuAction = {
+  label: string
+  iconName: string
+  variant?: 'default' | 'danger'
+} & ({ href: string; action?: never } | { action: string; href?: never })
+
+export const NAV_LINKS: NavLink[] = [
+  { label: 'Playground', href: '/playground', iconName: 'terminal' },
+  { label: 'Feed', href: '/feed', iconName: 'layout-grid' },
+]
+
+export const USER_MENU: MenuAction[] = [
+  { label: 'Profile', href: '/profile', iconName: 'user' },
+  { label: 'Settings', href: '/settings', iconName: 'settings' },
+  { label: 'Sign Out', action: 'signout', iconName: 'log-out', variant: 'danger' },
+]
+
+export const ROUTES = {
+  HOME: '/',
+  PLAYGROUND: '/playground',
+  FEED: '/feed',
+  SNIPPET: (slug: string) => `/s/${slug}`,
+  PROFILE: (username: string) => `/profile/${username}`,
+  LOGIN: '/login',
+  REGISTER: '/register',
+} as const
