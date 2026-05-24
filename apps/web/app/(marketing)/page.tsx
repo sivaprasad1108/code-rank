@@ -4,14 +4,14 @@ import { NavBar } from '@/components/layout/NavBar'
 import { Footer } from '@/components/layout/Footer'
 
 export const metadata = {
-  title: 'CodeRank — Cloud Code Runner & Snippet Sharing',
+  title: 'CodeRank — Code. Execute. Share.',
   description:
     'Write, execute, and share code in the browser. Isolated Docker containers, 4 languages, permanent share links.',
 }
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-bg-primary bg-hero-radial">
+    <div className="min-h-screen bg-bg-primary">
       <NavBar />
       <main className="pt-14">
         {LANDING_SECTIONS.map((section, i) => (

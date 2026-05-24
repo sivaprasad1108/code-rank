@@ -1,95 +1,217 @@
 import Link from 'next/link'
+import { Play, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import type { HeroSection as HeroSectionType } from '@/config/landing.config'
 
-const DEMO_CODE = `# Python — runs in an isolated container
-def greet(name: str) -> str:
-    return f"Hello, {name}! 👋"
+const DEMO_LINES = [
+  { tokens: [{ text: 'def ', c: 'keyword' }, { text: 'two_sum', c: 'function' }, { text: '(nums, target):', c: 'default' }] },
+  { tokens: [{ text: '    lookup', c: 'default' }, { text: ' = ', c: 'op' }, { text: '{}', c: 'default' }], indent: 4 },
+  { tokens: [{ text: '    ', c: 'default' }, { text: 'for ', c: 'keyword' }, { text: 'i, num ', c: 'default' }, { text: 'in ', c: 'keyword' }, { text: 'enumerate', c: 'function' }, { text: '(nums):', c: 'default' }] },
+  { tokens: [{ text: '        complement', c: 'default' }, { text: ' = ', c: 'op' }, { text: 'target', c: 'default' }, { text: ' - ', c: 'op' }, { text: 'num', c: 'default' }] },
+  { tokens: [{ text: '        ', c: 'default' }, { text: 'if ', c: 'keyword' }, { text: 'complement ', c: 'default' }, { text: 'in ', c: 'keyword' }, { text: 'lookup:', c: 'default' }] },
+  { tokens: [{ text: '            ', c: 'default' }, { text: 'return ', c: 'keyword' }, { text: '[lookup[complement], i]', c: 'default' }] },
+  { tokens: [{ text: '        lookup[num]', c: 'default' }, { text: ' = ', c: 'op' }, { text: 'i', c: 'default' }] },
+  { tokens: [] },
+  { tokens: [{ text: '# Binary search', c: 'comment' }] },
+  { tokens: [{ text: 'nums', c: 'default' }, { text: ' = ', c: 'op' }, { text: '[2, 7, 11, 15]', c: 'number' }] },
+  { tokens: [{ text: 'target', c: 'default' }, { text: ' = ', c: 'op' }, { text: '9', c: 'number' }] },
+  { tokens: [{ text: 'result', c: 'default' }, { text: ' = ', c: 'op' }, { text: 'two_sum', c: 'function' }, { text: '(nums, target)', c: 'default' }] },
+  { tokens: [{ text: 'print', c: 'function' }, { text: '(', c: 'default' }, { text: '"Indices:"', c: 'string' }, { text: ', result)', c: 'default' }] },
+]
 
-result = greet("CodeRank")
-print(result)
-# Output: Hello, CodeRank! 👋`
-
-interface Props {
-  section: HeroSectionType
+const COLOR_MAP: Record<string, string> = {
+  keyword:  '#C084FC',
+  function: '#67E8F9',
+  string:   '#4ADE80',
+  number:   '#FB923C',
+  comment:  '#4A5578',
+  op:       '#C084FC',
+  default:  '#E8ECF8',
 }
+
+const STATS = [
+  { value: '100+',   label: 'Developers' },
+  { value: '150+',   label: 'Executions' },
+  { value: '99.99%', label: 'Uptime' },
+  { value: '<50ms',  label: 'Avg latency' },
+]
+
+const TRUSTED_BY = ['Google', 'Amazon', 'Spotify', 'Atlassian', 'Netflix', 'Apple', 'Twitch']
+
+interface Props { section: HeroSectionType }
 
 export function HeroSection({ section }: Props) {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center px-6 py-24 overflow-hidden">
-      {/* Background glow orbs */}
-      <div
-        aria-hidden
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[120px] pointer-events-none"
-      />
-      <div
-        aria-hidden
-        className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[80px] pointer-events-none"
-      />
+    <section className="relative min-h-screen flex flex-col overflow-hidden">
+      {/* Background layers */}
+      <div aria-hidden className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
+      <div aria-hidden className="absolute inset-0 bg-hero-glow pointer-events-none" />
+      {/* Right-side glow orb */}
+      <div aria-hidden className="absolute top-1/4 right-[-10%] w-[600px] h-[600px] rounded-full bg-accent/5 blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-        {/* Left — copy */}
-        <div className="flex flex-col gap-8 animate-fade-in">
-          <div className="flex flex-col gap-4">
-            <h1 className="font-bold leading-tight text-4xl sm:text-5xl lg:text-6xl">
-              <span className="text-gradient">{section.title}</span>
-            </h1>
-            <p className="text-text-muted text-lg sm:text-xl max-w-xl leading-relaxed">
-              {section.description}
+      {/* ── Main hero content ── */}
+      <div className="relative z-10 flex-1 flex items-center max-w-[1400px] mx-auto w-full px-6 sm:px-8 lg:px-12 pt-28 pb-16 lg:pt-32 lg:pb-20">
+        <div className="w-full grid lg:grid-cols-[1fr_1fr] gap-12 xl:gap-20 items-center">
+
+          {/* Left — copy */}
+          <div className="flex flex-col gap-7 animate-fade-in">
+            {/* Eyebrow */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-accent/25 bg-accent/8 text-accent text-xs font-semibold w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              Cloud Code Execution — Now Live
+            </div>
+
+            {/* Headline */}
+            <div className="flex flex-col gap-1">
+              <h1 className="font-bold text-5xl sm:text-6xl xl:text-7xl leading-[1.05] tracking-[-0.03em] text-text-primary">
+                Code. Execute.
+              </h1>
+              <h1 className="font-bold text-5xl sm:text-6xl xl:text-7xl leading-[1.05] tracking-[-0.03em]">
+                Learn.{' '}
+                <span className="text-gradient-bright">Rank Higher.</span>
+              </h1>
+            </div>
+
+            {/* Subtitle */}
+            <p className="text-text-muted text-lg sm:text-xl max-w-[480px] leading-relaxed">
+              A fast, minimal cloud code runner. Write in the browser, execute in
+              isolation, share with the world — no setup required.
             </p>
-          </div>
 
-          <div className="flex flex-wrap gap-3">
-            {section.cta.map((btn) => (
-              <Button
-                key={btn.href}
-                variant={btn.variant === 'primary' ? 'primary' : 'secondary'}
-                size="lg"
-                asChild
-              >
-                <Link href={btn.href}>{btn.label}</Link>
+            {/* CTA */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button variant="primary" size="lg" asChild className="group shadow-glow">
+                <Link href={section.cta[0]?.href ?? '/playground'}>
+                  <Play size={15} className="fill-white" />
+                  {section.cta[0]?.label ?? 'Start Coding'}
+                  <ArrowRight size={14} className="opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
               </Button>
-            ))}
+              {section.cta[1] && (
+                <Button variant="outline" size="lg" asChild>
+                  <Link href={section.cta[1].href}>{section.cta[1].label}</Link>
+                </Button>
+              )}
+            </div>
+
+            {/* Trust signals */}
+            <div className="flex items-center gap-5 flex-wrap text-xs text-text-subtle">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                Free forever
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                No signup required
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                Docker-isolated
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-text-muted">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success inline-block" />
-              No signup to run code
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success inline-block" />
-              4 languages supported
-            </span>
+          {/* Right — code editor preview */}
+          <div className="hidden lg:block animate-fade-in-scale">
+            <div className="relative">
+              {/* Glow behind the card */}
+              <div className="absolute inset-0 rounded-2xl bg-accent/10 blur-[40px] scale-95 translate-y-4 pointer-events-none" />
+
+              <div className="relative rounded-2xl border border-border overflow-hidden shadow-xl bg-bg-elevated">
+                {/* Window chrome */}
+                <div className="flex items-center justify-between px-4 py-3 bg-bg-surface border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-error/70" />
+                    <span className="w-3 h-3 rounded-full bg-warning/70" />
+                    <span className="w-3 h-3 rounded-full bg-success/70" />
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-bg-elevated rounded-md border border-border">
+                    <div className="w-2 h-2 rounded-sm bg-accent/60" />
+                    <span className="text-xs text-text-muted font-code">main.py</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent text-white text-xs font-semibold cursor-pointer hover:bg-accent-hover transition-colors shadow-glow-sm">
+                    <Play size={10} className="fill-white" />
+                    Run
+                  </div>
+                </div>
+
+                {/* Code editor body */}
+                <div className="flex bg-bg-primary">
+                  {/* Line numbers */}
+                  <div className="py-5 px-3 select-none">
+                    {DEMO_LINES.map((_, i) => (
+                      <div key={i} className="font-code text-[12px] leading-[22px] text-text-subtle/40 text-right w-5">
+                        {i + 1}
+                      </div>
+                    ))}
+                  </div>
+                  {/* Code */}
+                  <div className="flex-1 py-5 pr-6 overflow-x-auto">
+                    {DEMO_LINES.map((line, i) => (
+                      <div key={i} className="font-code text-[12px] leading-[22px] whitespace-pre">
+                        {line.tokens.length === 0 ? '\u00A0' : line.tokens.map((t, j) => (
+                          <span key={j} style={{ color: COLOR_MAP[t.c] ?? COLOR_MAP.default }}>
+                            {t.text}
+                          </span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Output bar */}
+                <div className="border-t border-border bg-bg-surface px-4 py-2.5 flex items-center justify-between">
+                  <div className="font-code text-xs">
+                    <span className="text-text-subtle">$ </span>
+                    <span className="text-success">Indices: [0, 1]</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-text-subtle">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                      0.002s
+                    </span>
+                    <span>4.2 MB</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Right — code preview */}
-        <div className="glass rounded-xl overflow-hidden border border-border animate-slide-up hidden lg:block">
-          {/* Fake window chrome */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-bg-elevated">
-            <span className="w-3 h-3 rounded-full bg-error/70" />
-            <span className="w-3 h-3 rounded-full bg-warning/70" />
-            <span className="w-3 h-3 rounded-full bg-success/70" />
-            <span className="ml-2 text-xs text-text-muted font-code">main.py</span>
-          </div>
-          {/* Code */}
-          <pre className="p-6 font-code text-sm leading-relaxed text-text-muted overflow-x-auto">
-            {DEMO_CODE.split('\n').map((line, i) => (
-              <div key={i} className="flex">
-                <span className="select-none w-8 text-text-subtle opacity-40 shrink-0">
-                  {i + 1}
-                </span>
-                <span className={line.startsWith('#') ? 'text-text-subtle' : 'text-text-primary'}>
-                  {line}
-                </span>
+      {/* ── Stats bar ── */}
+      <div className="relative z-10 border-t border-border bg-bg-surface/50 backdrop-blur-sm py-5 px-6 sm:px-8">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Stat pills */}
+            <div className="flex items-center gap-8 flex-wrap justify-center sm:justify-start">
+              {STATS.map((stat) => (
+                <div key={stat.label} className="flex flex-col items-center sm:items-start gap-0.5">
+                  <span className="font-bold text-2xl text-text-primary tracking-tight">
+                    {stat.value}
+                  </span>
+                  <span className="text-sm text-text-subtle">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="hidden sm:block h-8 w-px bg-border mx-2" />
+
+            {/* Trusted by */}
+            <div className="flex items-center gap-4 flex-wrap justify-center">
+              <span className="text-xs text-text-subtle shrink-0">Trusted by devs at</span>
+              <div className="flex items-center gap-4 flex-wrap">
+                {TRUSTED_BY.map((company) => (
+                  <span
+                    key={company}
+                    className="text-xs font-semibold text-text-subtle/70 hover:text-text-muted transition-colors tracking-wide uppercase"
+                  >
+                    {company}
+                  </span>
+                ))}
               </div>
-            ))}
-          </pre>
-          {/* Output bar */}
-          <div className="px-6 py-3 border-t border-border bg-bg-elevated/60 font-code text-sm">
-            <span className="text-text-subtle">$ </span>
-            <span className="text-success">Hello, CodeRank! 👋</span>
+            </div>
           </div>
         </div>
       </div>

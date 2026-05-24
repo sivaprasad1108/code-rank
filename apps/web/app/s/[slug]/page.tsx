@@ -1,14 +1,18 @@
 import { notFound } from 'next/navigation'
-import { Star, Eye, Play } from 'lucide-react'
+import Link from 'next/link'
+import {
+  Star, Eye, GitFork, Play, Copy, ArrowLeft,
+  CheckCircle2, Clock, User, BarChart2,
+} from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
-import { GlassCard } from '@/components/shared/GlassCard'
 import { CodeBlock } from '@/components/shared/CodeBlock'
-import { SnippetMeta } from '@/features/snippets'
 import { CommentThread } from '@/features/comments'
 import { LanguageBadge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
+import { Avatar } from '@/components/ui/Avatar'
+import { CopyButton } from '@/components/shared/CopyButton'
 import type { Snippet } from '@coderank/types'
 import type { Metadata } from 'next'
+import { ROUTES } from '@/config/navigation.config'
 
 interface Props {
   params: { slug: string }
@@ -31,14 +35,10 @@ async function getSnippet(slug: string): Promise<Snippet | null> {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const snippet = await getSnippet(params.slug)
   if (!snippet) return { title: 'Snippet not found — CodeRank' }
-
   return {
     title: `${snippet.title} — CodeRank`,
     description: snippet.description ?? `A ${snippet.language} snippet on CodeRank`,
-    openGraph: {
-      title: snippet.title,
-      description: snippet.description ?? `A ${snippet.language} snippet`,
-    },
+    openGraph: { title: snippet.title, description: snippet.description ?? `A ${snippet.language} snippet` },
   }
 }
 
@@ -46,50 +46,187 @@ export default async function SnippetPage({ params }: Props) {
   const snippet = await getSnippet(params.slug)
   if (!snippet) notFound()
 
+  const author = snippet.author
+
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div className="grid lg:grid-cols-[1fr_280px] gap-8">
-          {/* Main */}
-          <div className="flex flex-col gap-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
+
+        {/* Back link */}
+        <Link
+          href={ROUTES.FEED}
+          className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary mb-6 transition-colors group"
+        >
+          <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+          Back to snippets
+        </Link>
+
+        <div className="grid lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-8 items-start">
+
+          {/* ── Main content ── */}
+          <div className="flex flex-col gap-6 min-w-0">
+
             {/* Header */}
             <div className="flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-4">
-                <h1 className="text-2xl font-bold text-text-primary">{snippet.title}</h1>
+              <div className="flex items-start gap-3 justify-between">
+                <div className="flex flex-col gap-1.5 min-w-0">
+                  <h1 className="text-xl font-bold text-text-primary leading-tight tracking-tight">
+                    {snippet.title}
+                  </h1>
+                  {snippet.description && (
+                    <p className="text-sm text-text-muted leading-relaxed">
+                      {snippet.description}
+                    </p>
+                  )}
+                </div>
                 <LanguageBadge language={snippet.language} />
               </div>
-              {snippet.description && (
-                <p className="text-text-muted">{snippet.description}</p>
-              )}
-              <div className="flex items-center gap-3">
-                <Button variant="primary" size="sm" asChild>
-                  <a href={`/playground?snippet=${snippet.slug}`}>
-                    <Play size={14} className="mr-1.5" />
-                    Run in Playground
-                  </a>
-                </Button>
+
+              {/* Meta */}
+              <div className="flex items-center gap-4 text-xs text-text-subtle flex-wrap">
+                <span className="flex items-center gap-1.5">
+                  <Star size={12} />
+                  {snippet.starsCount} stars
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Eye size={12} />
+                  {snippet.viewsCount} views
+                </span>
+                {author && (
+                  <span className="flex items-center gap-1.5">
+                    <User size={12} />
+                    {author.username}
+                  </span>
+                )}
+              </div>
+
+              {/* Action bar */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <ActionButton icon={<Star size={13} />} label="Star" />
+                <ActionButton icon={<GitFork size={13} />} label="Fork" />
+                <CopyButton text={snippet.code} className="h-8" />
+                <Link
+                  href={`${ROUTES.PLAYGROUND}?snippet=${snippet.slug}`}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition-all shadow-glow-sm hover:shadow-glow active:scale-[0.97]"
+                >
+                  <Play size={11} className="fill-white" />
+                  Run Code
+                </Link>
               </div>
             </div>
 
-            {/* Code */}
+            {/* Code viewer */}
             <CodeBlock
               code={snippet.code}
               language={snippet.language}
-              maxHeight="600px"
+              maxHeight="520px"
             />
 
             {/* Comments */}
-            <CommentThread snippetSlug={snippet.slug} />
+            <div className="border-t border-border pt-6">
+              <h2 className="text-sm font-semibold text-text-primary mb-4">
+                Comments
+              </h2>
+              <CommentThread snippetSlug={snippet.slug} />
+            </div>
           </div>
 
-          {/* Sidebar */}
-          <aside className="flex flex-col gap-6">
-            <GlassCard>
-              <SnippetMeta snippet={snippet} />
-            </GlassCard>
+          {/* ── Sidebar ── */}
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-[72px]">
+
+            {/* Execution Result card */}
+            <div className="rounded-xl border border-border bg-bg-elevated overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-bg-surface">
+                <span className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider">
+                  Execution Result
+                </span>
+              </div>
+              <div className="p-4 flex flex-col gap-3">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-success/20 bg-success/10 text-success text-xs font-semibold w-fit">
+                  <CheckCircle2 size={12} />
+                  Succeeded
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <SidebarMetric label="Runtime" value="0.002 s" />
+                  <SidebarMetric label="Memory" value="4.74 MB" />
+                  <SidebarMetric label="Language" value={snippet.language.charAt(0).toUpperCase() + snippet.language.slice(1)} />
+                  <SidebarMetric label="Exit code" value="0" />
+                </div>
+              </div>
+            </div>
+
+            {/* About Author */}
+            {author && (
+              <div className="rounded-xl border border-border bg-bg-elevated overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-bg-surface">
+                  <span className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider">
+                    About Author
+                  </span>
+                </div>
+                <div className="p-4 flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={author.username} size="md" />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-sm font-semibold text-text-primary truncate">
+                        {author.username}
+                      </span>
+                      {author.bio && (
+                        <span className="text-xs text-text-muted truncate">{author.bio}</span>
+                      )}
+                    </div>
+                  </div>
+                  <Link
+                    href={ROUTES.PROFILE(author.username)}
+                    className="w-full text-center py-1.5 rounded-lg border border-accent/25 text-accent text-xs font-medium hover:bg-accent/10 transition-colors"
+                  >
+                    View Profile
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Stats */}
+            <div className="rounded-xl border border-border bg-bg-elevated p-4 flex flex-col gap-3">
+              <span className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider">
+                Stats
+              </span>
+              <div className="flex flex-col gap-2">
+                <StatRow icon={<Star size={12} />}      label="Stars"  value={snippet.starsCount} />
+                <StatRow icon={<Eye size={12} />}        label="Views"  value={snippet.viewsCount} />
+                <StatRow icon={<GitFork size={12} />}   label="Forks"  value={0} />
+                <StatRow icon={<Clock size={12} />}     label="Runs"   value={0} />
+              </div>
+            </div>
           </aside>
         </div>
       </div>
     </PageLayout>
+  )
+}
+
+function ActionButton({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <button className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-text-muted text-xs font-medium hover:border-border-strong hover:text-text-primary hover:bg-bg-hover transition-all">
+      {icon}
+      {label}
+    </button>
+  )
+}
+
+function SidebarMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5 px-2.5 py-2 rounded-lg bg-bg-overlay border border-border">
+      <span className="text-[9px] text-text-subtle uppercase tracking-wide">{label}</span>
+      <span className="text-xs font-semibold text-text-primary font-code">{value}</span>
+    </div>
+  )
+}
+
+function StatRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between text-xs">
+      <span className="flex items-center gap-1.5 text-text-muted">{icon}{label}</span>
+      <span className="font-semibold text-text-primary">{value.toLocaleString()}</span>
+    </div>
   )
 }

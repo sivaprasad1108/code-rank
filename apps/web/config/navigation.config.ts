@@ -12,21 +12,28 @@ export type MenuAction = {
 
 export const NAV_LINKS: NavLink[] = [
   { label: 'Playground', href: '/playground', iconName: 'terminal' },
-  { label: 'Feed', href: '/feed', iconName: 'layout-grid' },
+  { label: 'Snippets',   href: '/feed',        iconName: 'layout-grid' },
+]
+
+export const NAV_LINKS_EXTENDED: NavLink[] = [
+  { label: 'Playground', href: '/playground', iconName: 'terminal' },
+  { label: 'Snippets',   href: '/feed',        iconName: 'layout-grid' },
+  { label: 'Docs',       href: '#',            iconName: 'book-open' },
+  { label: 'Pricing',    href: '#pricing',     iconName: 'credit-card' },
 ]
 
 export const USER_MENU: MenuAction[] = [
-  { label: 'Profile', href: '/profile', iconName: 'user' },
-  { label: 'Settings', href: '/settings', iconName: 'settings' },
-  { label: 'Sign Out', action: 'signout', iconName: 'log-out', variant: 'danger' },
+  { label: 'Profile',   href: '/profile',  iconName: 'user' },
+  { label: 'Settings',  href: '/settings', iconName: 'settings' },
+  { label: 'Sign Out',  action: 'signout', iconName: 'log-out', variant: 'danger' },
 ]
 
 export const ROUTES = {
-  HOME: '/',
+  HOME:       '/',
   PLAYGROUND: '/playground',
-  FEED: '/feed',
-  SNIPPET: (slug: string) => `/s/${slug}`,
-  PROFILE: (username: string) => `/profile/${username}`,
-  LOGIN: '/login',
-  REGISTER: '/register',
+  FEED:       '/feed',
+  SNIPPET:    (slug: string) => `/s/${slug}`,
+  PROFILE:    (username: string) => `/profile/${username}`,
+  LOGIN:      '/login',
+  REGISTER:   '/register',
 } as const

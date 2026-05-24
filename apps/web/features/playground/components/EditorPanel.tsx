@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import MonacoEditor, { type OnMount } from '@monaco-editor/react'
 import { EDITOR_OPTIONS, EDITOR_THEME_NAME, MONACO_THEME_DATA } from '@/config/editor.config'
 import { getLanguageById } from '@/config/languages.config'
@@ -31,27 +31,17 @@ export function EditorPanel({ onSave }: EditorPanelProps) {
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       () => {
         if (!isRunning) {
-          // Trigger run via document event so no prop drilling
           document.dispatchEvent(new CustomEvent('coderank:run'))
         }
       },
     )
   }
 
-  // Listen for run shortcut
-  useEffect(() => {
-    function handleRunEvent() {
-      document.dispatchEvent(new CustomEvent('coderank:run'))
-    }
-    return () => {
-      document.removeEventListener('coderank:run', handleRunEvent)
-    }
-  }, [])
-
   return (
     <div className="flex flex-col h-full bg-bg-primary">
       <EditorToolbar onSave={onSave} />
 
+      {/* Editor */}
       <div className="flex-1 overflow-hidden">
         <MonacoEditor
           height="100%"
@@ -74,6 +64,20 @@ export function EditorPanel({ onSave }: EditorPanelProps) {
             </div>
           }
         />
+      </div>
+
+      {/* Status bar */}
+      <div className="flex items-center justify-between px-4 py-1 bg-bg-surface border-t border-border shrink-0">
+        <div className="flex items-center gap-3 font-code text-[10px] text-text-subtle">
+          <span>Ln 1, Col 1</span>
+          <span className="w-px h-3 bg-border" />
+          <span>UTF-8</span>
+          <span className="w-px h-3 bg-border" />
+          <span>LF</span>
+        </div>
+        <div className="font-code text-[10px] text-text-subtle">
+          {langConfig?.label ?? language}
+        </div>
       </div>
     </div>
   )
