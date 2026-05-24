@@ -5,7 +5,8 @@ import { apiSuccess } from '@/common/utils/response'
 import { optionalAuth } from '@/common/middleware/auth.middleware'
 
 export async function executeRoutes(app: FastifyInstance) {
-  const service = new ExecuteService(app.redis)
+  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'
+  const service = new ExecuteService(app.redis, redisUrl)
 
   // POST /execute — submit code for execution
   app.post('/execute', {

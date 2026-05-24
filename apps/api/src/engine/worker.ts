@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq'
-import type Redis from 'ioredis'
+import IORedis from 'ioredis'
 import { RUNNER_REGISTRY } from './runner.registry'
 import { DockerService } from './docker.service'
 
@@ -13,8 +13,28 @@ interface ExecutionJob {
   stdin?: string
 }
 
-export function createExecutionWorker(redis: Redis): Worker {
+export function createExecutionWorker(redisUrl: string, appRedis: IORedis): Worker {
+  // BullMQ requires maxRetriesPerRequest: null — use a dedicated connection
+  const connection = new IORedis(redisUrl, {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  })
+
   const docker = new DockerService()
+
+  // Pull all runner images at startup (non-blocking — don't await)
+  Promise.allSettled(
+    Object.values(RUNNER_REGISTRY).map(async (runner) => {
+      try {
+        await docker.ensureImage(runner.dockerImage)
+        console.log(`[worker] image ready: ${runner.dockerImage}`)
+      } catch (err) {
+        console.warn(`[worker] failed to pull ${runner.dockerImage}:`, err)
+      }
+    }),
+  ).then(() => {
+    console.log('[worker] image pre-pull complete')
+  })
 
   const worker = new Worker<ExecutionJob>(
     QUEUE_NAME,
@@ -22,7 +42,7 @@ export function createExecutionWorker(redis: Redis): Worker {
       const { jobId, language, code, stdin } = job.data
 
       // Mark as running
-      await redis.set(
+      await appRedis.set(
         `exec:${jobId}`,
         JSON.stringify({ jobId, status: 'running' }),
         'EX',
@@ -34,16 +54,18 @@ export function createExecutionWorker(redis: Redis): Worker {
         throw new Error(`Unsupported language: ${language}`)
       }
 
+      // Ensure image is available (pulls if needed)
+      await docker.ensureImage(runner.dockerImage)
+
       const result = await docker.runContainer(runner, code, stdin, jobId)
 
-      const status =
-        result.stderr.includes('[Timed out]')
-          ? 'timeout'
-          : result.exitCode === 0
-          ? 'success'
-          : 'error'
+      const status = result.stderr.includes('[Timed out]')
+        ? 'timeout'
+        : result.exitCode === 0
+        ? 'success'
+        : 'error'
 
-      await redis.set(
+      await appRedis.set(
         `exec:${jobId}`,
         JSON.stringify({
           jobId,
@@ -57,22 +79,14 @@ export function createExecutionWorker(redis: Redis): Worker {
         RESULT_TTL_SECONDS,
       )
     },
-    {
-      connection: redis as ConstructorParameters<typeof Worker>[2] extends { connection: infer C } ? C : never,
-      concurrency: 5,
-    },
+    { connection, concurrency: 5 },
   )
 
   worker.on('failed', async (job, err) => {
     if (!job) return
-    const { jobId } = job.data
-    await redis.set(
-      `exec:${jobId}`,
-      JSON.stringify({
-        jobId,
-        status: 'error',
-        stderr: err.message,
-      }),
+    await appRedis.set(
+      `exec:${job.data.jobId}`,
+      JSON.stringify({ jobId: job.data.jobId, status: 'error', stderr: err.message }),
       'EX',
       RESULT_TTL_SECONDS,
     )

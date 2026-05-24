@@ -65,9 +65,10 @@ async function buildApp() {
 async function start() {
   const app = await buildApp()
 
-  // Start execution worker
+  // Start execution worker with its own BullMQ-compatible Redis connection
   const redis = app.redis as Redis
-  createExecutionWorker(redis)
+  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'
+  createExecutionWorker(redisUrl, redis)
 
   try {
     await app.listen({ port: PORT, host: '0.0.0.0' })

@@ -6,7 +6,13 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "infra:up": "docker run -d --name coderank-redis -p 6379:6379 redis:7-alpine 2>/dev/null || docker start coderank-redis ; docker run -d --name coderank-postgres -e POSTGRES_USER=coderank -e POSTGRES_PASSWORD=coderank -e POSTGRES_DB=coderank_dev -p 5432:5432 postgres:16-alpine 2>/dev/null || docker start coderank-postgres",
+    "infra:down": "docker stop coderank-redis coderank-postgres",
+    "infra:logs": "docker logs coderank-redis & docker logs coderank-postgres",
+    "images:pull": "docker pull python:3.12-slim && docker pull node:20-alpine && docker pull openjdk:21-slim && docker pull gcc:13-slim",
+    "db:push": "pnpm --filter @coderank/api db:push",
+    "start": "pnpm run infra:up && sleep 3 && pnpm run db:push && pnpm run dev"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
