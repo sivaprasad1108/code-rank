@@ -18,7 +18,7 @@ export async function snippetRoutes(app: FastifyInstance) {
         limit: filters.limit,
         cursor: filters.cursor,
       })
-      return reply.send(apiSuccess(result.snippets, result.nextCursor ? { cursor: result.nextCursor } : undefined))
+      return reply.send(apiSuccess({ snippets: result.snippets, nextCursor: result.nextCursor ?? null }))
     },
   })
 
