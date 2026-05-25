@@ -40,58 +40,90 @@ export class DockerService {
       Image: runner.dockerImage,
       Cmd: cmd,
       HostConfig: {
-        Memory: this.parseMemory(SANDBOX.memoryLimit),
-        MemorySwap: this.parseMemory(SANDBOX.memorySwap),
-        CpuQuota: SANDBOX.cpuQuota,
-        CpuPeriod: SANDBOX.cpuPeriod,
-        PidsLimit: SANDBOX.pidsLimit,
-        NetworkMode: 'none',
+        Memory:         this.parseMemory(SANDBOX.memoryLimit),
+        MemorySwap:     this.parseMemory(SANDBOX.memorySwap),
+        CpuQuota:       SANDBOX.cpuQuota,
+        CpuPeriod:      SANDBOX.cpuPeriod,
+        PidsLimit:      SANDBOX.pidsLimit,
+        NetworkMode:    'none',
         ReadonlyRootfs: SANDBOX.readonlyRootfs,
-        AutoRemove: SANDBOX.autoRemove,
-        CapDrop: [...SANDBOX.capDrop],
-        SecurityOpt: [...SANDBOX.securityOpt],
-        Tmpfs: { '/tmp': 'size=10m,noexec' },
-        Binds: [`${workdir}:/code:ro`],
+        AutoRemove:     false,          // keep container so we can inspect + remove manually
+        CapDrop:        [...SANDBOX.capDrop],
+        SecurityOpt:    [...SANDBOX.securityOpt],
+        Tmpfs:          { '/tmp': 'size=10m,noexec' },
+        Binds:          [`${workdir}:/code:ro`],
       },
-      User: SANDBOX.user,
+      User:         SANDBOX.user,
       AttachStdout: true,
       AttachStderr: true,
-      StdinOnce: !!stdin,
-      OpenStdin: !!stdin,
+      OpenStdin:    !!stdin,
+      StdinOnce:    !!stdin,
     })
 
     try {
+      // Attach to output stream BEFORE start so we don't miss any output
       const stream = await container.attach({
         stream: true,
         stdout: true,
         stderr: true,
-        stdin: !!stdin,
+        stdin:  !!stdin,
       })
 
+      const stdoutChunks: Buffer[] = []
+      const stderrChunks: Buffer[] = []
+
+      container.modem.demuxStream(
+        stream,
+        { write: (chunk: Buffer) => stdoutChunks.push(chunk) },
+        { write: (chunk: Buffer) => stderrChunks.push(chunk) },
+      )
+
+      await container.start()
+
+      // Write stdin after start
       if (stdin) {
         stream.write(stdin)
         stream.end()
       }
 
-      await container.start()
+      // Race: container exits vs sandbox timeout
+      const timedOut = await Promise.race([
+        container.wait().then(() => false as const),
+        new Promise<true>((resolve) => setTimeout(() => resolve(true), SANDBOX.timeoutMs)),
+      ])
 
-      // Collect output with timeout
-      const { stdout, stderr } = await this.collectOutput(container, stream)
+      if (timedOut) {
+        await container.kill().catch(() => {})
+        // Give demuxStream a tick to flush any buffered output
+        await new Promise((r) => setTimeout(r, 50))
+        const executionTimeMs = Date.now() - startMs
+        await this.cleanup(container, workdir)
+        return {
+          stdout:          Buffer.concat(stdoutChunks).toString('utf8'),
+          stderr:          Buffer.concat(stderrChunks).toString('utf8') + '\n[Timed out]',
+          exitCode:        -1,
+          executionTimeMs,
+        }
+      }
+
+      // Brief tick so demuxStream can flush remaining buffered data
+      await new Promise((r) => setImmediate(r))
+
+      const info = await container.inspect()
+      const exitCode = info.State.ExitCode
       const executionTimeMs = Date.now() - startMs
 
-      const info = await container.inspect().catch(() => ({ State: { ExitCode: -1 } }))
-
-      await fs.rm(workdir, { recursive: true, force: true })
+      await this.cleanup(container, workdir)
 
       return {
-        stdout: stdout.slice(0, SANDBOX.maxOutputBytes),
-        stderr: stderr.slice(0, SANDBOX.maxOutputBytes),
-        exitCode: info.State.ExitCode,
+        stdout:          Buffer.concat(stdoutChunks).toString('utf8'),
+        stderr:          Buffer.concat(stderrChunks).toString('utf8'),
+        exitCode,
         executionTimeMs,
       }
     } catch (err) {
       await container.kill().catch(() => {})
-      await fs.rm(workdir, { recursive: true, force: true })
+      await this.cleanup(container, workdir)
       throw err
     }
   }
@@ -112,41 +144,11 @@ export class DockerService {
     }
   }
 
-  private async collectOutput(
-    container: Docker.Container,
-    stream: NodeJS.ReadWriteStream,
-  ): Promise<{ stdout: string; stderr: string }> {
-    return new Promise((resolve, reject) => {
-      const stdoutChunks: Buffer[] = []
-      const stderrChunks: Buffer[] = []
-
-      const timeout = setTimeout(async () => {
-        await container.kill().catch(() => {})
-        resolve({
-          stdout: Buffer.concat(stdoutChunks).toString('utf8'),
-          stderr: Buffer.concat(stderrChunks).toString('utf8') + '\n[Timed out]',
-        })
-      }, SANDBOX.timeoutMs)
-
-      container.modem.demuxStream(stream, {
-        write: (chunk: Buffer) => stdoutChunks.push(chunk),
-      }, {
-        write: (chunk: Buffer) => stderrChunks.push(chunk),
-      })
-
-      stream.on('end', () => {
-        clearTimeout(timeout)
-        resolve({
-          stdout: Buffer.concat(stdoutChunks).toString('utf8'),
-          stderr: Buffer.concat(stderrChunks).toString('utf8'),
-        })
-      })
-
-      stream.on('error', (err) => {
-        clearTimeout(timeout)
-        reject(err)
-      })
-    })
+  private async cleanup(container: Docker.Container, workdir: string): Promise<void> {
+    await Promise.allSettled([
+      container.remove({ force: true }),
+      fs.rm(workdir, { recursive: true, force: true }),
+    ])
   }
 
   private parseMemory(str: string): number {

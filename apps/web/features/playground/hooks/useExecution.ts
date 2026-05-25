@@ -8,10 +8,11 @@ import { EXECUTION_LIMITS } from '@/config/editor.config'
 import { useEditorStore } from '../store/editor.store'
 
 const POLL_INTERVAL_MS = 500
-const MAX_POLLS = Math.ceil(EXECUTION_LIMITS.timeoutMs / POLL_INTERVAL_MS) + 5
+// Each test case can take up to timeoutMs; allow extra buffer for polling
+const MAX_POLLS = Math.ceil((EXECUTION_LIMITS.timeoutMs * 2) / POLL_INTERVAL_MS) + 10
 
 export function useExecution() {
-  const { code, language, setOutput, setRunning, isRunning } = useEditorStore()
+  const { code, language, testCases, setOutput, setRunning, isRunning } = useEditorStore()
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -25,10 +26,17 @@ export function useExecution() {
     setRunning(true)
 
     try {
-      const { jobId } = await apiClient.post<{ jobId: string }>(ENDPOINTS.EXECUTE.SUBMIT, {
-        language,
-        code,
-      })
+      // Build the request: use testCases if any have stdin or expectedOutput filled in
+      const hasMultiple = testCases.length > 1
+      const hasExpected = testCases.some((tc) => tc.expectedOutput)
+      const hasStdin    = testCases.some((tc) => tc.stdin.trim())
+      const useTestCases = hasMultiple || hasExpected || hasStdin
+
+      const body = useTestCases
+        ? { language, code, testCases }
+        : { language, code }
+
+      const { jobId } = await apiClient.post<{ jobId: string }>(ENDPOINTS.EXECUTE.SUBMIT, body)
 
       let polls = 0
 
@@ -45,9 +53,7 @@ export function useExecution() {
         try {
           const result = await apiClient.get<ExecuteResult>(ENDPOINTS.EXECUTE.RESULT(jobId))
 
-          if (result.status === 'pending' || result.status === 'running') {
-            return // keep polling
-          }
+          if (result.status === 'pending' || result.status === 'running') return
 
           clearInterval(pollRef.current!)
           setOutput(result)
@@ -63,7 +69,7 @@ export function useExecution() {
       setOutput({ jobId: '', status: 'error', stderr: message })
       setRunning(false)
     }
-  }, [code, language, isRunning, setOutput, setRunning])
+  }, [code, language, testCases, isRunning, setOutput, setRunning])
 
   return { run, isRunning }
 }

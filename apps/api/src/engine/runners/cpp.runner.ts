@@ -3,7 +3,7 @@ import type { LanguageRunner } from '../runner.interface'
 
 export class CppRunner implements LanguageRunner {
   readonly id            = 'cpp'
-  readonly dockerImage   = 'gcc:13-slim'
+  readonly dockerImage   = 'gcc:13'
   readonly fileExtension = 'cpp'
 
   buildRunCommand(codePath: string): string[] {
