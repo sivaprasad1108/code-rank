@@ -35,6 +35,18 @@ importers:
       '@fastify/swagger':
         specifier: ^8.14.0
         version: 8.15.0
+      '@types/bcrypt':
+        specifier: ^5.0.2
+        version: 5.0.2
+      '@types/dockerode':
+        specifier: ^3.3.29
+        version: 3.3.47
+      '@types/node':
+        specifier: ^20.14.0
+        version: 20.19.41
+      '@types/pg':
+        specifier: ^8.11.6
+        version: 8.20.0
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -66,18 +78,6 @@ importers:
         specifier: ^3.23.8
         version: 3.25.76
     devDependencies:
-      '@types/bcrypt':
-        specifier: ^5.0.2
-        version: 5.0.2
-      '@types/dockerode':
-        specifier: ^3.3.29
-        version: 3.3.47
-      '@types/node':
-        specifier: ^20.14.0
-        version: 20.19.41
-      '@types/pg':
-        specifier: ^8.11.6
-        version: 8.20.0
       drizzle-kit:
         specifier: ^0.21.4
         version: 0.21.4
