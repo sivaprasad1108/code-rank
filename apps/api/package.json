@@ -33,11 +33,11 @@
     "pg": "^8.12.0",
     "dotenv": "^16.4.5",
     "tsc-alias": "^1.8.10",
+    "typescript": "^5.4.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "drizzle-kit": "^0.21.4",
-    "tsx": "^4.15.0",
-    "typescript": "^5.4.5"
+    "tsx": "^4.15.0"
   }
 }
