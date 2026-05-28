@@ -6,6 +6,16 @@ import { DockerService } from './docker.service'
 
 const QUEUE_NAME = 'code-execution'
 const RESULT_TTL_SECONDS = 120
+const CR_TIME_RE = /__CR_TIME__:(\d+)\n?/
+
+/** Extract the algorithm-only execution time written by the driver harness */
+function extractAlgoTime(stderr: string, fallbackMs: number): { algoTimeMs: number; cleanStderr: string } {
+  const m = stderr.match(CR_TIME_RE)
+  return {
+    algoTimeMs:  m ? parseInt(m[1], 10) : fallbackMs,
+    cleanStderr: stderr.replace(CR_TIME_RE, ''),
+  }
+}
 
 interface ExecutionJob {
   jobId: string
@@ -71,7 +81,9 @@ export function createExecutionWorker(redisUrl: string, appRedis: IORedis): Work
 
           const result = await docker.runContainer(runner, runnableCode, stdinToPass, `${jobId}-${i}`)
 
-          const rawStatus = result.stderr.includes('[Timed out]')
+          const { algoTimeMs, cleanStderr } = extractAlgoTime(result.stderr, result.executionTimeMs)
+
+          const rawStatus = cleanStderr.includes('[Timed out]')
             ? 'timeout'
             : result.exitCode === 0
             ? 'success'
@@ -91,9 +103,9 @@ export function createExecutionWorker(redisUrl: string, appRedis: IORedis): Work
             index:           i,
             stdin:           tc.stdin ?? '',
             stdout:          result.stdout,
-            stderr:          result.stderr,
+            stderr:          cleanStderr,
             exitCode:        result.exitCode,
-            executionTimeMs: result.executionTimeMs,
+            executionTimeMs: algoTimeMs,
             status,
             ...(passed !== undefined ? { passed } : {}),
           })
@@ -123,10 +135,19 @@ export function createExecutionWorker(redisUrl: string, appRedis: IORedis): Work
         return
       }
 
-      // ── Single-run mode (backward compat) ──────────────────────────────────
-      const result = await docker.runContainer(runner, code, stdin, jobId)
+      // ── Single-run mode ──────────────────────────────────────────────────────
+      // Still try the driver so timing markers are injected for pure functions
+      const singleLines = (stdin ?? '').trim().split('\n').filter(Boolean)
+      const singleArgs  = singleLines.map((l) => { try { return JSON.parse(l) } catch { return l } })
+      const singleCode  = runner.wrapWithDriver?.(code, singleArgs) ?? code
+      const singleStdin = singleCode !== code ? undefined : stdin
 
-      const status = result.stderr.includes('[Timed out]')
+      const result = await docker.runContainer(runner, singleCode, singleStdin, jobId)
+
+      const { algoTimeMs: singleAlgoMs, cleanStderr: singleStderr } =
+        extractAlgoTime(result.stderr, result.executionTimeMs)
+
+      const status = singleStderr.includes('[Timed out]')
         ? 'timeout'
         : result.exitCode === 0
         ? 'success'
@@ -138,9 +159,9 @@ export function createExecutionWorker(redisUrl: string, appRedis: IORedis): Work
           jobId,
           status,
           stdout:          result.stdout,
-          stderr:          result.stderr,
+          stderr:          singleStderr,
           exitCode:        result.exitCode,
-          executionTimeMs: result.executionTimeMs,
+          executionTimeMs: singleAlgoMs,
         }),
         'EX',
         RESULT_TTL_SECONDS,

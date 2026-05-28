@@ -22,11 +22,14 @@ export class PythonRunner implements LanguageRunner {
     const driver = `
 
 # ── CodeRank driver ──
-import json as _cr_json
+import json as _cr_json, time as _cr_time, sys as _cr_sys
 _cr_args   = _cr_json.loads(${argsJson})
+_cr_t0     = _cr_time.perf_counter_ns()
 _cr_result = ${fnName}(*_cr_args)
+_cr_t1     = _cr_time.perf_counter_ns()
 if _cr_result is not None:
     print(_cr_result)
+_cr_sys.stderr.write('__CR_TIME__:' + str((_cr_t1 - _cr_t0) // 1_000_000) + '\\n')
 `
 
     return code + driver
