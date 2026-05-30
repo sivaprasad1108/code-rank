@@ -44,7 +44,7 @@ export function NavBar() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-[var(--duration-fast)]',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-[var(--duration-fast)]',
                     'hover:bg-bg-hover hover:text-text-primary',
                     isActive
                       ? 'text-text-primary bg-bg-active'
@@ -52,6 +52,11 @@ export function NavBar() {
                   )}
                 >
                   {link.label}
+                  {link.badge && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wide bg-accent/15 text-accent border border-accent/25 leading-none">
+                      {link.badge}
+                    </span>
+                  )}
                 </Link>
               )
             })}
