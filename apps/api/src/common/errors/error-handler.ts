@@ -24,7 +24,7 @@ export function errorHandler(
     return reply.status(401).send(apiError('UNAUTHORIZED', 'Invalid or expired token'))
   }
 
-  // Unknown / unhandled
-  console.error('[unhandled error]', error)
+  // Unknown / unhandled — log with request context, never expose internals
+  _request.log.error({ err: error }, '[unhandled error]')
   return reply.status(500).send(apiError('INTERNAL_ERROR', 'Internal server error'))
 }

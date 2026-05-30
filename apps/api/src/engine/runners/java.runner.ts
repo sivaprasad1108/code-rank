@@ -3,7 +3,7 @@ import type { LanguageRunner } from '../runner.interface'
 
 export class JavaRunner implements LanguageRunner {
   readonly id            = 'java'
-  readonly dockerImage   = 'openjdk:21-slim'
+  readonly dockerImage   = 'eclipse-temurin:21-jdk-alpine'
   readonly fileExtension = 'java'
 
   buildRunCommand(codePath: string): string[] {
