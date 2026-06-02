@@ -6,7 +6,15 @@ export class CppRunner implements LanguageRunner {
   readonly fileExtension = 'cpp'
 
   buildRunCommand(codePath: string): string[] {
-    // /code is read-only; write compiled binary to /tmp
-    return ['sh', '-c', `g++ -O2 -o /build/a.out ${codePath} && /build/a.out`]
+    // Compile to /build (exec-allowed tmpfs), then time only the binary execution
+    return ['sh', '-c', [
+      `g++ -O2 -o /build/a.out ${codePath}`,
+      `start=$(awk '{print int($1*1000)}' /proc/uptime)`,
+      `/build/a.out`,
+      `ec=$?`,
+      `end=$(awk '{print int($1*1000)}' /proc/uptime)`,
+      `echo "__CR_TIME__:$((end - start))" >&2`,
+      `exit $ec`,
+    ].join(' && ')]
   }
 }
