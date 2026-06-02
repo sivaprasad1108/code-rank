@@ -13,7 +13,7 @@ export async function authRoutes(app: FastifyInstance) {
     handler: async (request, reply) => {
       const body = CreateUserSchema.parse(request.body)
       const { user, token } = await service.register(body)
-      reply.setCookie('token', token, { httpOnly: true, path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
+      reply.setCookie('token', token, { httpOnly: true, path: '/', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', secure: process.env.NODE_ENV === 'production' })
       return reply.status(201).send(apiSuccess(user))
     },
   })
@@ -24,7 +24,7 @@ export async function authRoutes(app: FastifyInstance) {
     handler: async (request, reply) => {
       const body = LoginSchema.parse(request.body)
       const { user, token } = await service.login(body)
-      reply.setCookie('token', token, { httpOnly: true, path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
+      reply.setCookie('token', token, { httpOnly: true, path: '/', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', secure: process.env.NODE_ENV === 'production' })
       return reply.send(apiSuccess(user))
     },
   })
