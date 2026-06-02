@@ -34,8 +34,6 @@ export class DockerService {
     const containerCodePath = `/code/main.${runner.fileExtension}`
     const cmd = runner.buildRunCommand(containerCodePath)
 
-    const startMs = Date.now()
-
     const container = await this.docker.createContainer({
       Image: runner.dockerImage,
       Cmd: cmd,
@@ -79,6 +77,7 @@ export class DockerService {
       )
 
       await container.start()
+      const startMs = Date.now()
 
       // Write stdin after start
       if (stdin) {
