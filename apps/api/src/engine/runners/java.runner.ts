@@ -1,4 +1,3 @@
-import path from 'path'
 import type { LanguageRunner } from '../runner.interface'
 
 export class JavaRunner implements LanguageRunner {
@@ -7,8 +6,7 @@ export class JavaRunner implements LanguageRunner {
   readonly fileExtension = 'java'
 
   buildRunCommand(codePath: string): string[] {
-    const dir = path.dirname(codePath)
-    // Compile then run; class name must be Main
-    return ['sh', '-c', `javac ${codePath} && java -cp ${dir} Main`]
+    // /code is read-only; copy to /tmp/Main.java so javac can write .class files
+    return ['sh', '-c', `cp ${codePath} /tmp/Main.java && javac /tmp/Main.java && java -cp /tmp Main`]
   }
 }
