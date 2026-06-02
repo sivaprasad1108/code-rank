@@ -50,7 +50,7 @@ export class DockerService {
         AutoRemove:     false,          // keep container so we can inspect + remove manually
         CapDrop:        [...SANDBOX.capDrop],
         SecurityOpt:    [...SANDBOX.securityOpt],
-        Tmpfs:          { '/tmp': 'size=10m,noexec' },
+        Tmpfs:          { '/tmp': 'size=10m,noexec', '/build': 'size=10m' },
         Binds:          [`${workdir}:/code:ro`],
       },
       User:         SANDBOX.user,

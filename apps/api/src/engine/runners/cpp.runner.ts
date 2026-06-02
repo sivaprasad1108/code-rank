@@ -7,6 +7,6 @@ export class CppRunner implements LanguageRunner {
 
   buildRunCommand(codePath: string): string[] {
     // /code is read-only; write compiled binary to /tmp
-    return ['sh', '-c', `g++ -O2 -o /tmp/a.out ${codePath} && /tmp/a.out`]
+    return ['sh', '-c', `g++ -O2 -o /build/a.out ${codePath} && /build/a.out`]
   }
 }
