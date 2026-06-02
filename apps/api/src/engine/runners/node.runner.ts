@@ -44,10 +44,12 @@ export class NodeRunner implements LanguageRunner {
   }
 
   private detectFunctionName(code: string): string | null {
+    // Check top-level var/let/const assignments first — inner named functions like backTrack
+    // would otherwise match the function keyword pattern prematurely
     const patterns = [
-      /(?:^|\n)\s*(?:async\s+)?function\s+(\w+)\s*\(/,
-      /(?:^|\n)\s*(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?function/,
-      /(?:^|\n)\s*(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(/,
+      /(?:^|\n)(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?function/,
+      /(?:^|\n)(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(/,
+      /(?:^|\n)(?:async\s+)?function\s+(\w+)\s*\(/,
     ]
     for (const p of patterns) {
       const m = code.match(p)

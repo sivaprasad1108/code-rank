@@ -435,6 +435,17 @@ def twoSum(nums, target):
 # CodeRank auto-wraps → Output: [0, 1], executionTimeMs: 0.04ms
 ```
 
+### Execution Time Measurement
+
+| Language | Time Measured | Includes |
+|----------|--------------|---------|
+| Python | Algorithm only | Driver harness measures inner function via `time.perf_counter` |
+| JavaScript | Algorithm only | Driver harness measures inner function via `process.hrtime.bigint()` |
+| Java | Total container time | Includes `javac` compilation + JVM startup — inherent to compiled languages |
+| C++ | Total container time | Includes `g++` compilation + process startup — inherent to compiled languages |
+
+For Python and JavaScript, the `executionTimeMs` in the result reflects only the algorithm's execution time, not interpreter startup. For Java and C++, it reflects the full container lifetime including compilation, which is the honest and accurate cost of running those languages.
+
 ---
 
 ## Security Model
