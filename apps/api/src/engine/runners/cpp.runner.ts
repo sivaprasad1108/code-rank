@@ -1,4 +1,3 @@
-import path from 'path'
 import type { LanguageRunner } from '../runner.interface'
 
 export class CppRunner implements LanguageRunner {
@@ -7,8 +6,7 @@ export class CppRunner implements LanguageRunner {
   readonly fileExtension = 'cpp'
 
   buildRunCommand(codePath: string): string[] {
-    const dir = path.dirname(codePath)
-    const out = path.join(dir, 'a.out')
-    return ['sh', '-c', `g++ -O2 -o ${out} ${codePath} && ${out}`]
+    // /code is read-only; write compiled binary to /tmp
+    return ['sh', '-c', `g++ -O2 -o /tmp/a.out ${codePath} && /tmp/a.out`]
   }
 }
