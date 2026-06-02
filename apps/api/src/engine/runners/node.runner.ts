@@ -23,15 +23,21 @@ export class NodeRunner implements LanguageRunner {
     const driver = `
 // ── CodeRank driver ──
 ;(() => {
-  const __args = ${JSON.stringify(args)}
-  const __t0   = process.hrtime.bigint()
-  const __result = ${fnName}(...__args)
-  const __t1   = process.hrtime.bigint()
+  const __args  = ${JSON.stringify(args)}
+  const __times = []
+  let __result
+  for (let __i = 0; __i < 3; __i++) {
+    const __t0 = process.hrtime.bigint()
+    __result   = ${fnName}(...__args)
+    const __t1 = process.hrtime.bigint()
+    __times.push(Number(__t1 - __t0))
+  }
+  __times.sort((a, b) => a - b)
   if (__result !== undefined && __result !== null) {
     const __out = typeof __result === 'object' ? JSON.stringify(__result) : String(__result)
     process.stdout.write(__out + '\\n')
   }
-  process.stderr.write('__CR_TIME__:' + Number((__t1 - __t0) / 1_000_000n) + '\\n')
+  process.stderr.write('__CR_TIME__:' + Math.round(__times[1] / 1_000_000) + '\\n')
 })()`
 
     return code + driver
