@@ -14,6 +14,7 @@ import { authRoutes } from '@/modules/auth/auth.router'
 import { executeRoutes } from '@/modules/execute/execute.router'
 import { snippetRoutes } from '@/modules/snippets/snippets.router'
 import { userRoutes } from '@/modules/users/users.router'
+import { playgroundRoutes } from '@/modules/playground/playground.router'
 import { createExecutionWorker } from '@/engine/worker'
 import { apiSuccess, apiError } from '@/common/utils/response'
 
@@ -80,6 +81,7 @@ async function buildApp() {
     await api.register(executeRoutes)
     await api.register(snippetRoutes)
     await api.register(userRoutes)
+    await api.register(playgroundRoutes)
 
     // Health check — verifies database and Redis connectivity
     api.get('/health', async (_req, reply) => {

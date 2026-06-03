@@ -6,6 +6,7 @@ import { ENDPOINTS } from '@/lib/api/endpoints'
 import { apiClient } from '@/lib/api/client'
 import { EXECUTION_LIMITS } from '@/config/editor.config'
 import { useEditorStore } from '../store/editor.store'
+import { useRecents } from './useRecents'
 
 const POLL_INTERVAL_MS = 500
 // Each test case can take up to timeoutMs; allow extra buffer for polling
@@ -13,6 +14,7 @@ const MAX_POLLS = Math.ceil((EXECUTION_LIMITS.timeoutMs * 2) / POLL_INTERVAL_MS)
 
 export function useExecution() {
   const { code, language, testCases, setOutput, setRunning, isRunning } = useEditorStore()
+  const { addRecent } = useRecents()
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -23,6 +25,7 @@ export function useExecution() {
 
   const run = useCallback(async () => {
     if (isRunning) return
+    addRecent(language, code)
     setRunning(true)
 
     try {
@@ -69,7 +72,7 @@ export function useExecution() {
       setOutput({ jobId: '', status: 'error', stderr: message })
       setRunning(false)
     }
-  }, [code, language, testCases, isRunning, setOutput, setRunning])
+  }, [code, language, testCases, isRunning, addRecent, setOutput, setRunning])
 
   return { run, isRunning }
 }

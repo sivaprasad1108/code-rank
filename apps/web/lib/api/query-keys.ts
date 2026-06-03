@@ -12,4 +12,6 @@ export const queryKeys = {
   profileSnippets: (username: string) => ['profile', username, 'snippets'] as const,
   me: () => ['me'] as const,
   execution: (jobId: string) => ['execution', jobId] as const,
+  recents: () => ['playground', 'recents'] as const,
+  collections: () => ['playground', 'collections'] as const,
 } as const

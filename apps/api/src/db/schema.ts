@@ -10,6 +10,7 @@ import {
   index,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Users
@@ -132,3 +133,67 @@ export const follows = pgTable(
     followerIdx: index('idx_follows_follower').on(t.followerId),
   }),
 )
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Playground Recents
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const recents = pgTable(
+  'recents',
+  {
+    id:        uuid('id').primaryKey().defaultRandom(),
+    userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    title:     varchar('title', { length: 255 }).notNull(),
+    language:  varchar('language', { length: 32 }).notNull(),
+    code:      text('code').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index('idx_recents_user_id').on(t.userId),
+  }),
+)
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Playground Collections
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const collections = pgTable(
+  'collections',
+  {
+    id:        uuid('id').primaryKey().defaultRandom(),
+    userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    name:      varchar('name', { length: 100 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index('idx_collections_user_id').on(t.userId),
+  }),
+)
+
+export const collectionItems = pgTable(
+  'collection_items',
+  {
+    id:           uuid('id').primaryKey().defaultRandom(),
+    collectionId: uuid('collection_id').notNull().references(() => collections.id, { onDelete: 'cascade' }),
+    title:        varchar('title', { length: 255 }).notNull(),
+    language:     varchar('language', { length: 32 }).notNull(),
+    code:         text('code').notNull(),
+    createdAt:    timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    collectionIdx: index('idx_collection_items_collection_id').on(t.collectionId),
+  }),
+)
+
+// ── Relations ─────────────────────────────────────────────────────────────────
+
+export const collectionsRelations = relations(collections, ({ many }) => ({
+  items: many(collectionItems),
+}))
+
+export const collectionItemsRelations = relations(collectionItems, ({ one }) => ({
+  collection: one(collections, {
+    fields: [collectionItems.collectionId],
+    references: [collections.id],
+  }),
+}))

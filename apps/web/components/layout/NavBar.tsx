@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Terminal, Zap, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
+import { Skeleton } from '@/components/ui/Skeleton'
 import { Button } from '@/components/ui/Button'
 import { NAV_LINKS_EXTENDED, ROUTES } from '@/config/navigation.config'
 import { useAuth } from '@/features/auth/hooks/useAuth'
@@ -11,7 +12,7 @@ import { Avatar } from '@/components/ui/Avatar'
 
 export function NavBar() {
   const pathname = usePathname()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
 
   return (
     <header className="fixed top-0 inset-x-0 z-[200] h-14">
@@ -59,7 +60,16 @@ export function NavBar() {
 
           {/* ── Right side ── */}
           <div className="flex items-center gap-2 shrink-0">
-            {isAuthenticated && user ? (
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                {/* Pro badge skeleton */}
+                <Skeleton className="hidden sm:block h-6 w-14 rounded-md" />
+                {/* Avatar skeleton */}
+                <Skeleton className="h-6 w-6 rounded-full" />
+                {/* Username skeleton */}
+                <Skeleton className="hidden sm:block h-3.5 w-20 rounded" />
+              </div>
+            ) : isAuthenticated && user ? (
               <>
                 {/* Pro badge */}
                 <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent/10 border border-accent/25 text-accent text-xs font-semibold">
