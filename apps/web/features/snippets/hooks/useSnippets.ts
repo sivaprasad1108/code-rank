@@ -9,7 +9,7 @@ export function useSnippets(filters: Partial<SnippetFilters> = {}) {
     queryKey: queryKeys.snippets.list(filters),
     queryFn: async () => {
       const params = new URLSearchParams()
-      if (filters.language) params.set('lang', filters.language)
+      if (filters.language) params.set('language', filters.language)
       if (filters.sort) params.set('sort', filters.sort)
       if (filters.cursor) params.set('cursor', filters.cursor)
       if (filters.limit) params.set('limit', String(filters.limit))
