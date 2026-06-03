@@ -16,23 +16,42 @@ const TABS = [
   { id: 'tags',        label: 'Tags' },
 ]
 
-export function ProblemStatement() {
+interface ProblemStatementProps {
+  isOpen?: boolean
+  onToggle?: () => void
+}
+
+export function ProblemStatement({ isOpen = true, onToggle }: ProblemStatementProps) {
   const [tab, setTab] = useState('description')
 
   return (
     <div className="flex flex-col h-full bg-bg-surface border-b border-border">
       {/* Problem header */}
-      <div className="px-5 py-4 border-b border-border flex items-center justify-between gap-4 shrink-0">
+      <div className="px-5 py-3 border-b border-border flex items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-3">
           <span className="text-xs font-code text-text-subtle">#{problem.id}</span>
-          <h2 className="font-semibold text-text-primary text-base">{problem.name}</h2>
+          <h2 className="font-semibold text-text-primary text-sm">{problem.name}</h2>
         </div>
-        <Badge
-          variant={problem.difficulty === 'Easy' ? 'success' : problem.difficulty === 'Medium' ? 'warning' : 'error'}
-          size="md"
-        >
-          {problem.difficulty}
-        </Badge>
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge
+            variant={problem.difficulty === 'Easy' ? 'success' : problem.difficulty === 'Medium' ? 'warning' : 'error'}
+            size="sm"
+          >
+            {problem.difficulty}
+          </Badge>
+          {onToggle && (
+            <button
+              onClick={onToggle}
+              title={isOpen ? 'Collapse problem' : 'Expand problem'}
+              className="h-6 w-6 rounded flex items-center justify-center text-text-subtle hover:text-text-primary hover:bg-bg-hover transition-colors"
+            >
+              {isOpen
+                ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 8L6 4L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              }
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}

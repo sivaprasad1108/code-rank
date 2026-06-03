@@ -19,12 +19,31 @@ const TEST_CASES = [
   { input: '[3,3], target = 6',       expected: '[0,1]', actual: '[0,1]', passed: true },
 ]
 
-export function BattleOutputPanel() {
+interface BattleOutputPanelProps {
+  isOpen?: boolean
+  onToggle?: () => void
+}
+
+export function BattleOutputPanel({ isOpen = true, onToggle }: BattleOutputPanelProps) {
   const [tab, setTab] = useState('output')
 
   return (
     <div className="flex flex-col h-full border-t border-border bg-bg-surface">
-      <Tabs tabs={TABS} activeTab={tab} onTabChange={setTab} size="sm" className="px-4 shrink-0" />
+      <div className="flex items-center shrink-0 border-b border-border pr-2">
+        <Tabs tabs={TABS} activeTab={tab} onTabChange={setTab} size="sm" className="px-4 flex-1 border-b-0" />
+        {onToggle && (
+          <button
+            onClick={onToggle}
+            title={isOpen ? 'Collapse output' : 'Expand output'}
+            className="h-6 w-6 rounded flex items-center justify-center text-text-subtle hover:text-text-primary hover:bg-bg-hover transition-colors shrink-0"
+          >
+            {isOpen
+              ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 8L6 4L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            }
+          </button>
+        )}
+      </div>
 
       <div className="flex-1 overflow-y-auto p-4">
         {tab === 'output' && (
