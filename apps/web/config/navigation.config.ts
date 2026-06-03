@@ -14,13 +14,13 @@ export type MenuAction = {
 export const NAV_LINKS: NavLink[] = [
   { label: 'Playground', href: '/playground',  iconName: 'terminal' },
   { label: 'Snippets',   href: '/feed',         iconName: 'layout-grid' },
-  { label: 'War Rooms',  href: '/war-rooms',    iconName: 'swords', badge: 'NEW' },
+  { label: 'War Rooms',  href: '/war-rooms',    iconName: 'swords', badge: 'SOON' },
 ]
 
 export const NAV_LINKS_EXTENDED: NavLink[] = [
   { label: 'Playground', href: '/playground',  iconName: 'terminal' },
   { label: 'Snippets',   href: '/feed',         iconName: 'layout-grid' },
-  { label: 'War Rooms',  href: '/war-rooms',    iconName: 'swords', badge: 'NEW' },
+  { label: 'War Rooms',  href: '/war-rooms',    iconName: 'swords', badge: 'SOON' },
   { label: 'Docs',       href: '#',             iconName: 'book-open' },
   { label: 'Pricing',    href: '#pricing',      iconName: 'credit-card' },
 ]
