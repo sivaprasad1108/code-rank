@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Clock, ArrowRight,
   PanelLeftClose, PanelLeftOpen,
   PanelRightClose, PanelRightOpen,
+  Users, Trophy, MessageSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { Button } from '@/components/ui/Button'
@@ -16,43 +17,46 @@ import { LiveLeaderboard } from './LiveLeaderboard'
 import { LiveChat } from './LiveChat'
 import { BattleOutputPanel } from './BattleOutputPanel'
 
-// ── Size constraints ──────────────────────────────────────────────────────────
-const LEFT_MIN    = 160
-const LEFT_MAX    = 360
+// ── Constraints ───────────────────────────────────────────────────────────────
+const LEFT_MIN    = 180
+const LEFT_MAX    = 380
 const LEFT_DEF    = 220
 
 const RIGHT_MIN   = 220
-const RIGHT_MAX   = 420
+const RIGHT_MAX   = 440
 const RIGHT_DEF   = 280
 
 const PROBLEM_MIN = 110
-const PROBLEM_MAX = 340
+const PROBLEM_MAX = 360
 const PROBLEM_DEF = 160
 
 const OUTPUT_MIN  = 90
-const OUTPUT_MAX  = 440
+const OUTPUT_MAX  = 460
 const OUTPUT_DEF  = 170
 
-const COLLAPSED_W = 32   // width of icon-only strip when panel is collapsed
+const RAIL_W      = 52   // collapsed peek-rail width (VS Code style)
 
-const ELAPSED    = '06:12'
-const TIME_LEFT  = '23:48'
+const ELAPSED     = '06:12'
+const TIME_LEFT   = '23:48'
 
-// ── Drag handle ───────────────────────────────────────────────────────────────
+// ── Drag handles ──────────────────────────────────────────────────────────────
 function ColHandle({ onDrag }: { onDrag: (dx: number) => void }) {
-  const start = useRef(0)
+  const startX = useRef(0)
 
   function onMouseDown(e: React.MouseEvent) {
     e.preventDefault()
-    start.current = e.clientX
-    document.body.style.cursor = 'col-resize'
+    startX.current = e.clientX
+    document.body.style.cursor    = 'col-resize'
     document.body.style.userSelect = 'none'
 
-    function onMove(ev: MouseEvent) { onDrag(ev.clientX - start.current); start.current = ev.clientX }
+    function onMove(ev: MouseEvent) {
+      onDrag(ev.clientX - startX.current)
+      startX.current = ev.clientX
+    }
     function onUp() {
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
-      document.body.style.cursor = ''
+      document.body.style.cursor    = ''
       document.body.style.userSelect = ''
     }
     document.addEventListener('mousemove', onMove)
@@ -62,28 +66,28 @@ function ColHandle({ onDrag }: { onDrag: (dx: number) => void }) {
   return (
     <div
       onMouseDown={onMouseDown}
-      className="w-[4px] shrink-0 cursor-col-resize bg-transparent hover:bg-accent/40 active:bg-accent/60 transition-colors group relative z-10"
-    >
-      {/* visual nub */}
-      <div className="absolute inset-y-0 -left-px -right-px opacity-0 group-hover:opacity-100 transition-opacity" />
-    </div>
+      className="w-1 shrink-0 cursor-col-resize bg-transparent hover:bg-accent/50 active:bg-accent/70 transition-colors"
+    />
   )
 }
 
 function RowHandle({ onDrag }: { onDrag: (dy: number) => void }) {
-  const start = useRef(0)
+  const startY = useRef(0)
 
   function onMouseDown(e: React.MouseEvent) {
     e.preventDefault()
-    start.current = e.clientY
-    document.body.style.cursor = 'row-resize'
+    startY.current = e.clientY
+    document.body.style.cursor    = 'row-resize'
     document.body.style.userSelect = 'none'
 
-    function onMove(ev: MouseEvent) { onDrag(ev.clientY - start.current); start.current = ev.clientY }
+    function onMove(ev: MouseEvent) {
+      onDrag(ev.clientY - startY.current)
+      startY.current = ev.clientY
+    }
     function onUp() {
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
-      document.body.style.cursor = ''
+      document.body.style.cursor    = ''
       document.body.style.userSelect = ''
     }
     document.addEventListener('mousemove', onMove)
@@ -93,34 +97,80 @@ function RowHandle({ onDrag }: { onDrag: (dy: number) => void }) {
   return (
     <div
       onMouseDown={onMouseDown}
-      className="h-[4px] shrink-0 cursor-row-resize bg-transparent hover:bg-accent/40 active:bg-accent/60 transition-colors"
+      className="h-1 shrink-0 cursor-row-resize bg-transparent hover:bg-accent/50 active:bg-accent/70 transition-colors"
     />
+  )
+}
+
+// ── Icon rail — collapsed sidebar ─────────────────────────────────────────────
+interface RailProps {
+  side: 'left' | 'right'
+  onExpand: () => void
+  icons: { icon: React.ReactNode; label: string }[]
+}
+
+function PeekRail({ side, onExpand, icons }: RailProps) {
+  return (
+    <button
+      onClick={onExpand}
+      title="Expand panel"
+      className={cn(
+        'flex flex-col items-center gap-4 pt-3 pb-4 h-full w-full',
+        'bg-bg-surface hover:bg-bg-elevated transition-colors',
+        'group focus:outline-none',
+      )}
+    >
+      {/* Expand arrow */}
+      <span className="flex items-center justify-center w-7 h-7 rounded text-text-subtle group-hover:text-text-primary group-hover:bg-bg-hover transition-colors shrink-0">
+        {side === 'left' ? <PanelLeftOpen size={14} /> : <PanelRightOpen size={14} />}
+      </span>
+
+      {/* Divider */}
+      <span className="w-5 h-px bg-border shrink-0" />
+
+      {/* Section icons */}
+      {icons.map(({ icon, label }) => (
+        <span
+          key={label}
+          title={label}
+          className="flex flex-col items-center gap-1.5 text-text-subtle group-hover:text-text-muted transition-colors shrink-0"
+        >
+          {icon}
+          <span
+            className="text-[8px] font-semibold uppercase tracking-widest leading-none select-none"
+            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+          >
+            {label}
+          </span>
+        </span>
+      ))}
+    </button>
   )
 }
 
 // ── Main layout ───────────────────────────────────────────────────────────────
 export function BattleLayout({ roomId }: { roomId: string }) {
-  const [leftW,         setLeftW]         = useState(LEFT_DEF)
-  const [rightW,        setRightW]        = useState(RIGHT_DEF)
-  const [problemH,      setProblemH]      = useState(PROBLEM_DEF)
-  const [outputH,       setOutputH]       = useState(OUTPUT_DEF)
-  const [leftOpen,      setLeftOpen]      = useState(true)
-  const [rightOpen,     setRightOpen]     = useState(true)
+  const [leftW,     setLeftW]     = useState(LEFT_DEF)
+  const [rightW,    setRightW]    = useState(RIGHT_DEF)
+  const [problemH,  setProblemH]  = useState(PROBLEM_DEF)
+  const [outputH,   setOutputH]   = useState(OUTPUT_DEF)
+  const [leftOpen,  setLeftOpen]  = useState(true)
+  const [rightOpen, setRightOpen] = useState(true)
 
-  // Clamp helpers
   const dragLeft    = useCallback((dx: number) => setLeftW  (w => Math.max(LEFT_MIN,    Math.min(LEFT_MAX,    w + dx))), [])
   const dragRight   = useCallback((dx: number) => setRightW (w => Math.max(RIGHT_MIN,   Math.min(RIGHT_MAX,   w - dx))), [])
   const dragProblem = useCallback((dy: number) => setProblemH(h => Math.max(PROBLEM_MIN, Math.min(PROBLEM_MAX, h + dy))), [])
   const dragOutput  = useCallback((dy: number) => setOutputH (h => Math.max(OUTPUT_MIN,  Math.min(OUTPUT_MAX,  h - dy))), [])
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)] bg-bg-primary overflow-hidden">
+    // h-screen — battle page has NO NavBar (no PageLayout wrapper), so use full viewport
+    <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
 
       {/* ── Top bar ── */}
       <div className="flex items-center gap-3 px-3 h-10 bg-bg-surface border-b border-border shrink-0">
 
-        {/* Panel toggles */}
-        <div className="flex items-center gap-1">
+        {/* Panel toggle buttons */}
+        <div className="flex items-center gap-0.5">
           <button
             onClick={() => setLeftOpen(o => !o)}
             title={leftOpen ? 'Collapse left panel' : 'Expand left panel'}
@@ -149,7 +199,7 @@ export function BattleLayout({ roomId }: { roomId: string }) {
           <span className="text-xs text-text-subtle hidden sm:inline shrink-0">· Two Sum</span>
         </div>
 
-        {/* Timer + End */}
+        {/* Timer + End Battle */}
         <div className="flex items-center gap-3 ml-auto shrink-0">
           <div className="flex items-center gap-1.5 text-xs text-text-muted">
             <Clock size={12} />
@@ -171,78 +221,61 @@ export function BattleLayout({ roomId }: { roomId: string }) {
         </div>
       </div>
 
-      {/* ── Body ── */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* ── Body — fills every remaining pixel ── */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
 
         {/* ── Left panel ── */}
         <div
-          className={cn(
-            'shrink-0 border-r border-border overflow-hidden flex flex-col',
-            'transition-[width] duration-200 ease-in-out',
-          )}
-          style={{ width: leftOpen ? leftW : COLLAPSED_W }}
+          className="shrink-0 border-r border-border overflow-hidden transition-[width] duration-200 ease-in-out"
+          style={{ width: leftOpen ? leftW : RAIL_W }}
         >
           {leftOpen ? (
             <ParticipantsSidebar />
           ) : (
-            /* Collapsed strip */
-            <div className="flex flex-col items-center gap-3 pt-3 h-full bg-bg-surface">
-              <button
-                onClick={() => setLeftOpen(true)}
-                title="Expand left panel"
-                className="h-7 w-7 rounded flex items-center justify-center text-text-subtle hover:text-text-primary hover:bg-bg-hover transition-colors"
-              >
-                <PanelLeftOpen size={14} />
-              </button>
-              {/* Rotated label */}
-              <span
-                className="text-[10px] font-semibold text-text-subtle uppercase tracking-widest select-none mt-2"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-              >
-                Players
-              </span>
-            </div>
+            <PeekRail
+              side="left"
+              onExpand={() => setLeftOpen(true)}
+              icons={[
+                { icon: <Users size={15} />,  label: 'Players'   },
+                { icon: <Trophy size={15} />, label: 'Standings' },
+              ]}
+            />
           )}
         </div>
 
-        {/* Left drag handle — only when open */}
+        {/* Left col-resize handle (only when open) */}
         {leftOpen && <ColHandle onDrag={dragLeft} />}
 
-        {/* ── Center ── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* ── Center workspace ── */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 min-h-0">
 
-          {/* Problem statement */}
+          {/* Problem statement (resizable) */}
           <div className="shrink-0 overflow-hidden" style={{ height: problemH }}>
             <ProblemStatement />
           </div>
 
-          {/* Problem ↕ drag handle */}
           <RowHandle onDrag={dragProblem} />
 
-          {/* Editor — fills all remaining space */}
+          {/* Editor — gets all remaining vertical space */}
           <div className="flex-1 overflow-hidden min-h-0">
             <BattleEditor />
           </div>
 
-          {/* Output ↕ drag handle */}
           <RowHandle onDrag={dragOutput} />
 
-          {/* Output panel */}
+          {/* Output panel (resizable) */}
           <div className="shrink-0 overflow-hidden border-t border-border" style={{ height: outputH }}>
             <BattleOutputPanel />
           </div>
         </div>
 
-        {/* Right drag handle — only when open */}
+        {/* Right col-resize handle (only when open) */}
         {rightOpen && <ColHandle onDrag={dragRight} />}
 
         {/* ── Right panel ── */}
         <div
-          className={cn(
-            'shrink-0 border-l border-border flex flex-col overflow-hidden',
-            'transition-[width] duration-200 ease-in-out',
-          )}
-          style={{ width: rightOpen ? rightW : COLLAPSED_W }}
+          className="shrink-0 border-l border-border overflow-hidden flex flex-col transition-[width] duration-200 ease-in-out"
+          style={{ width: rightOpen ? rightW : RAIL_W }}
         >
           {rightOpen ? (
             <>
@@ -252,22 +285,14 @@ export function BattleLayout({ roomId }: { roomId: string }) {
               <LiveChat />
             </>
           ) : (
-            /* Collapsed strip */
-            <div className="flex flex-col items-center gap-3 pt-3 h-full bg-bg-surface">
-              <button
-                onClick={() => setRightOpen(true)}
-                title="Expand right panel"
-                className="h-7 w-7 rounded flex items-center justify-center text-text-subtle hover:text-text-primary hover:bg-bg-hover transition-colors"
-              >
-                <PanelRightOpen size={14} />
-              </button>
-              <span
-                className="text-[10px] font-semibold text-text-subtle uppercase tracking-widest select-none mt-2"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-              >
-                Leaderboard
-              </span>
-            </div>
+            <PeekRail
+              side="right"
+              onExpand={() => setRightOpen(true)}
+              icons={[
+                { icon: <Trophy size={15} />,       label: 'Leaderboard' },
+                { icon: <MessageSquare size={15} />, label: 'Chat'        },
+              ]}
+            />
           )}
         </div>
       </div>
