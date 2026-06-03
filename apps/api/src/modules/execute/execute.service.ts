@@ -6,7 +6,7 @@ import { RUNNER_REGISTRY } from '@/engine/runner.registry'
 import { ValidationError, NotFoundError } from '@/common/errors/AppError'
 
 const QUEUE_NAME = 'code-execution'
-const RESULT_TTL_SECONDS = 120
+const RESULT_TTL_SECONDS = 300  // 5 minutes — must match worker TTL
 
 export class ExecuteService {
   private queue: Queue

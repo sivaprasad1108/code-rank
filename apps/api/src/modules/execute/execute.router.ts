@@ -9,7 +9,9 @@ export async function executeRoutes(app: FastifyInstance) {
   const service = new ExecuteService(app.redis, redisUrl)
 
   // POST /execute — submit code for execution
+  // Stricter rate limit: 10 executions per minute per IP (compute-heavy endpoint)
   app.post('/execute', {
+    config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
     preHandler: [optionalAuth],
     handler: async (request, reply) => {
       const body = ExecuteRequestSchema.parse(request.body)

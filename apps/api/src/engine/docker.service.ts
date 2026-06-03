@@ -34,8 +34,6 @@ export class DockerService {
     const containerCodePath = `/code/main.${runner.fileExtension}`
     const cmd = runner.buildRunCommand(containerCodePath)
 
-    const startMs = Date.now()
-
     const container = await this.docker.createContainer({
       Image: runner.dockerImage,
       Cmd: cmd,
@@ -50,7 +48,7 @@ export class DockerService {
         AutoRemove:     false,          // keep container so we can inspect + remove manually
         CapDrop:        [...SANDBOX.capDrop],
         SecurityOpt:    [...SANDBOX.securityOpt],
-        Tmpfs:          { '/tmp': 'size=10m,noexec' },
+        Tmpfs:          { '/tmp': 'size=10m,noexec', '/build': 'size=10m,exec' },
         Binds:          [`${workdir}:/code:ro`],
       },
       User:         SANDBOX.user,
@@ -79,6 +77,7 @@ export class DockerService {
       )
 
       await container.start()
+      const startMs = Date.now()
 
       // Write stdin after start
       if (stdin) {

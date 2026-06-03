@@ -5,7 +5,7 @@ import { RUNNER_REGISTRY } from './runner.registry'
 import { DockerService } from './docker.service'
 
 const QUEUE_NAME = 'code-execution'
-const RESULT_TTL_SECONDS = 120
+const RESULT_TTL_SECONDS = 300  // 5 minutes — gives clients enough time to poll
 const CR_TIME_RE = /__CR_TIME__:(\d+)\n?/
 
 /** Extract the algorithm-only execution time written by the driver harness */

@@ -1,8 +1,15 @@
 import type { FastifyInstance } from 'fastify'
-import { CreateSnippetSchema, UpdateSnippetSchema, CreateCommentSchema, SnippetFiltersSchema } from '@coderank/types'
+import { CreateSnippetSchema, UpdateSnippetSchema, CreateCommentSchema, SnippetFiltersSchema, SUPPORTED_LANGUAGES } from '@coderank/types'
 import { SnippetService } from './snippets.service'
 import { apiSuccess } from '@/common/utils/response'
 import { requireAuth, optionalAuth } from '@/common/middleware/auth.middleware'
+
+/** Lowercase and validate a language string; returns undefined if unknown */
+function normalizeLang(lang: unknown): string | undefined {
+  if (typeof lang !== 'string') return undefined
+  const lower = lang.toLowerCase()
+  return (SUPPORTED_LANGUAGES as readonly string[]).includes(lower) ? lower : undefined
+}
 
 export async function snippetRoutes(app: FastifyInstance) {
   const service = new SnippetService()
@@ -11,7 +18,13 @@ export async function snippetRoutes(app: FastifyInstance) {
   app.get('/snippets', {
     preHandler: [optionalAuth],
     handler: async (request, reply) => {
-      const filters = SnippetFiltersSchema.parse(request.query)
+      const raw = request.query as Record<string, unknown>
+      // Normalize language case before Zod's strict enum check;
+      // unknown languages are coerced to undefined so the filter is simply ignored.
+      const filters = SnippetFiltersSchema.parse({
+        ...raw,
+        language: normalizeLang(raw.language),
+      })
       const result = await service.list({
         language: filters.language,
         sort: filters.sort,
@@ -26,7 +39,12 @@ export async function snippetRoutes(app: FastifyInstance) {
   app.post('/snippets', {
     preHandler: [optionalAuth],
     handler: async (request, reply) => {
-      const body = CreateSnippetSchema.parse(request.body)
+      const raw = request.body as Record<string, unknown>
+      // Normalize language case so 'Python', 'PYTHON', 'python' all pass validation
+      const body = CreateSnippetSchema.parse({
+        ...raw,
+        language: normalizeLang(raw.language) ?? raw.language,
+      })
       const userId = (request.user as { sub?: string } | undefined)?.sub
       const snippet = await service.create(userId, body)
       return reply.status(201).send(apiSuccess(snippet))
@@ -47,7 +65,11 @@ export async function snippetRoutes(app: FastifyInstance) {
   app.put<{ Params: { slug: string } }>('/snippets/:slug', {
     preHandler: [requireAuth],
     handler: async (request, reply) => {
-      const body = UpdateSnippetSchema.parse(request.body)
+      const raw = request.body as Record<string, unknown>
+      const body = UpdateSnippetSchema.parse({
+        ...raw,
+        ...(raw.language !== undefined && { language: normalizeLang(raw.language) ?? raw.language }),
+      })
       const userId = (request.user as { sub: string }).sub
       const snippet = await service.update(request.params.slug, userId, body)
       return reply.send(apiSuccess(snippet))

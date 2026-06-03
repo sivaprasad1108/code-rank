@@ -15,10 +15,10 @@ interface FeedPage {
 
 export function useFeed(params: FeedParams = {}) {
   return useInfiniteQuery({
-    queryKey: ['feed', params],
+    queryKey: ['feed', params.language ?? '', params.sort ?? 'recent'],
     queryFn: async ({ pageParam }) => {
       const searchParams = new URLSearchParams()
-      if (params.language) searchParams.set('lang', params.language)
+      if (params.language) searchParams.set('language', params.language)
       if (params.sort) searchParams.set('sort', params.sort)
       if (pageParam) searchParams.set('cursor', pageParam as string)
       searchParams.set('limit', '20')

@@ -10,9 +10,10 @@ export class PythonRunner implements LanguageRunner {
   }
 
   wrapWithDriver(code: string, args: unknown[]): string | null {
-    // Strip comments, then check if the user already has explicit output
+    // Strip comments, then check if user already has top-level output.
+    // Only match print() at column 0 (indented print = inside a function body).
     const stripped = code.replace(/#[^\n]*/g, '')
-    if (/^\s*print\s*\(/m.test(stripped)) return null
+    if (/^print\s*\(/m.test(stripped)) return null
 
     const fnName = this.detectFunctionName(code)
     if (!fnName) return null
@@ -24,12 +25,16 @@ export class PythonRunner implements LanguageRunner {
 # ── CodeRank driver ──
 import json as _cr_json, time as _cr_time, sys as _cr_sys
 _cr_args   = _cr_json.loads(${argsJson})
-_cr_t0     = _cr_time.perf_counter_ns()
-_cr_result = ${fnName}(*_cr_args)
-_cr_t1     = _cr_time.perf_counter_ns()
+_cr_times  = []
+for _cr_i in range(3):
+    _cr_t0 = _cr_time.perf_counter_ns()
+    _cr_result = ${fnName}(*_cr_args)
+    _cr_t1 = _cr_time.perf_counter_ns()
+    _cr_times.append(_cr_t1 - _cr_t0)
+_cr_times.sort()
 if _cr_result is not None:
     print(_cr_result)
-_cr_sys.stderr.write('__CR_TIME__:' + str((_cr_t1 - _cr_t0) // 1_000_000) + '\\n')
+_cr_sys.stderr.write('__CR_TIME__:' + str(_cr_times[1] // 1_000_000) + '\\n')
 `
 
     return code + driver

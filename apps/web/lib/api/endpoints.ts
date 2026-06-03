@@ -32,4 +32,12 @@ export const ENDPOINTS = {
     FOLLOW: (username: string) => `${BASE}/users/${username}/follow`,
     ME: `${BASE}/users/me`,
   },
+  PLAYGROUND: {
+    RECENTS: `${BASE}/playground/recents`,
+    RECENT: (id: string) => `${BASE}/playground/recents/${id}`,
+    COLLECTIONS: `${BASE}/playground/collections`,
+    COLLECTION: (id: string) => `${BASE}/playground/collections/${id}`,
+    COLLECTION_ITEMS: (id: string) => `${BASE}/playground/collections/${id}/items`,
+    COLLECTION_ITEM: (id: string, itemId: string) => `${BASE}/playground/collections/${id}/items/${itemId}`,
+  },
 } as const

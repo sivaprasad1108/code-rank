@@ -1,4 +1,3 @@
-import path from 'path'
 import type { LanguageRunner } from '../runner.interface'
 
 export class CppRunner implements LanguageRunner {
@@ -7,8 +6,15 @@ export class CppRunner implements LanguageRunner {
   readonly fileExtension = 'cpp'
 
   buildRunCommand(codePath: string): string[] {
-    const dir = path.dirname(codePath)
-    const out = path.join(dir, 'a.out')
-    return ['sh', '-c', `g++ -O2 -o ${out} ${codePath} && ${out}`]
+    // Compile to /build (exec-allowed tmpfs), then time only the binary execution
+    return ['sh', '-c', [
+      `g++ -O2 -o /build/a.out ${codePath}`,
+      `start=$(awk '{print int($1*1000)}' /proc/uptime)`,
+      `/build/a.out`,
+      `ec=$?`,
+      `end=$(awk '{print int($1*1000)}' /proc/uptime)`,
+      `echo "__CR_TIME__:$((end - start))" >&2`,
+      `exit $ec`,
+    ].join(' && ')]
   }
 }

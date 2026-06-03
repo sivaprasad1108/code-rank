@@ -1,15 +1,16 @@
+import { type ReactNode } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Star, Eye, GitFork, Play, Copy, ArrowLeft,
-  CheckCircle2, Clock, User, BarChart2,
+  Star, Eye, GitFork, ArrowLeft,
+  CheckCircle2, Clock, User,
 } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { CodeBlock } from '@/components/shared/CodeBlock'
 import { CommentThread } from '@/features/comments'
 import { LanguageBadge } from '@/components/ui/Badge'
 import { Avatar } from '@/components/ui/Avatar'
-import { CopyButton } from '@/components/shared/CopyButton'
+import { SnippetActions } from '@/features/snippets/components/SnippetActions'
 import type { Snippet } from '@coderank/types'
 import type { Metadata } from 'next'
 import { ROUTES } from '@/config/navigation.config'
@@ -101,18 +102,7 @@ export default async function SnippetPage({ params }: Props) {
               </div>
 
               {/* Action bar */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <ActionButton icon={<Star size={13} />} label="Star" />
-                <ActionButton icon={<GitFork size={13} />} label="Fork" />
-                <CopyButton text={snippet.code} className="h-8" />
-                <Link
-                  href={`${ROUTES.PLAYGROUND}?snippet=${snippet.slug}`}
-                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition-all shadow-glow-sm hover:shadow-glow active:scale-[0.97]"
-                >
-                  <Play size={11} className="fill-white" />
-                  Run Code
-                </Link>
-              </div>
+              <SnippetActions snippet={snippet} />
             </div>
 
             {/* Code viewer */}
@@ -204,15 +194,6 @@ export default async function SnippetPage({ params }: Props) {
   )
 }
 
-function ActionButton({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <button className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-text-muted text-xs font-medium hover:border-border-strong hover:text-text-primary hover:bg-bg-hover transition-all">
-      {icon}
-      {label}
-    </button>
-  )
-}
-
 function SidebarMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 px-2.5 py-2 rounded-lg bg-bg-overlay border border-border">
@@ -222,7 +203,7 @@ function SidebarMetric({ label, value }: { label: string; value: string }) {
   )
 }
 
-function StatRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+function StatRow({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
     <div className="flex items-center justify-between text-xs">
       <span className="flex items-center gap-1.5 text-text-muted">{icon}{label}</span>
