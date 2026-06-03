@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Search, Clock, FolderOpen, Zap, ChevronRight, FileCode, X, Trash2, BookmarkPlus, Pencil } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { DEFAULT_LANGUAGE } from '@/config/languages.config'
 import { useEditorStore } from '../store/editor.store'
 import { useRecents } from '../hooks/useRecents'
 import { useCollections } from '../hooks/useCollections'
@@ -67,7 +68,7 @@ export function PlaygroundSidebar() {
       {/* New Snippet */}
       <div className="px-3 py-3 border-b border-border shrink-0">
         <button
-          onClick={() => { setCode(''); }}
+          onClick={() => { setLanguage(DEFAULT_LANGUAGE.id); setCode(DEFAULT_LANGUAGE.defaultCode) }}
           className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-border text-text-muted text-sm font-medium hover:border-border-strong hover:text-text-primary hover:bg-bg-hover transition-all group"
         >
           <Plus size={14} className="text-accent group-hover:rotate-90 transition-transform duration-[var(--duration-fast)]" />
