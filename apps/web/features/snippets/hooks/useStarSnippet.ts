@@ -34,6 +34,8 @@ export function useStarSnippet(slug: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.snippets.detail(slug) })
+      // Refresh the feed so star counts stay accurate
+      queryClient.invalidateQueries({ queryKey: ['feed'] })
     },
   })
 }

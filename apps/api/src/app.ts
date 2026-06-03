@@ -119,10 +119,13 @@ async function buildApp() {
 async function start() {
   const app = await buildApp()
 
-  // Start execution worker with its own BullMQ-compatible Redis connection
-  const redis = app.redis as Redis
-  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'
-  createExecutionWorker(redisUrl, redis)
+  // BullMQ needs a persistent Redis server — NOT Upstash.
+  // UPSTASH_URL has a 500k request/month cap; BullMQ burns through that instantly
+  // with its continuous Lua-script polling.  Use QUEUE_REDIS_URL (local Redis)
+  // for the queue and keep REDIS_URL (Upstash) only for low-volume app caching.
+  const appRedis  = app.redis as Redis
+  const queueUrl  = process.env.QUEUE_REDIS_URL ?? 'redis://localhost:6379'
+  createExecutionWorker(queueUrl, appRedis)
 
   try {
     await app.listen({ port: PORT, host: '0.0.0.0' })

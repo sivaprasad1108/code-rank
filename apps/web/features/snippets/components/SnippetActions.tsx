@@ -2,11 +2,12 @@
 
 import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { Star, GitFork, Play, Share2 } from 'lucide-react'
+import { GitFork, Play, Share2 } from 'lucide-react'
 import { CopyButton } from '@/components/shared/CopyButton'
 import { useEditorStore } from '@/features/playground/store/editor.store'
 import { ROUTES } from '@/config/navigation.config'
 import { ShareModal } from './ShareModal'
+import { StarButton } from './StarButton'
 import type { Snippet } from '@coderank/types'
 
 interface Props {
@@ -29,7 +30,14 @@ export function SnippetActions({ snippet }: Props) {
   return (
     <>
       <div className="flex items-center gap-2 flex-wrap">
-        <ActionButton icon={<Star size={13} />} label="Star" />
+        <StarButton
+          slug={snippet.slug}
+          initialCount={snippet.starsCount}
+          initialStarred={snippet.starredByMe}
+          iconSize={13}
+          showCount
+          pill
+        />
         <ActionButton icon={<GitFork size={13} />} label="Fork & Start" onClick={handleFork} />
         <CopyButton text={snippet.code} className="h-8" />
         <a

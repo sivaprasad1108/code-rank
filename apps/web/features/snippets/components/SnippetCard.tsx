@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { Star, Eye, Play } from 'lucide-react'
+import { Eye, Play } from 'lucide-react'
 import { LanguageBadge } from '@/components/ui/Badge'
 import { Avatar } from '@/components/ui/Avatar'
-import { formatNumber, formatDate } from '@/lib/utils/format'
+import { formatNumber } from '@/lib/utils/format'
 import { ROUTES } from '@/config/navigation.config'
 import { cn } from '@/lib/utils/cn'
+import { StarButton } from './StarButton'
 import type { Snippet } from '@coderank/types'
 
 interface SnippetCardProps {
@@ -65,10 +66,12 @@ export function SnippetCard({ snippet }: SnippetCardProps) {
 
             {/* Stats */}
             <div className="flex items-center gap-3 text-[11px] text-text-subtle">
-              <span className="flex items-center gap-1 hover:text-text-muted transition-colors">
-                <Star size={11} />
-                {formatNumber(snippet.starsCount)}
-              </span>
+              <StarButton
+                slug={snippet.slug}
+                initialCount={snippet.starsCount}
+                initialStarred={snippet.starredByMe}
+                iconSize={11}
+              />
               <span className="flex items-center gap-1">
                 <Eye size={11} />
                 {formatNumber(snippet.viewsCount)}
