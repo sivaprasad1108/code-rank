@@ -10,9 +10,10 @@ export class PythonRunner implements LanguageRunner {
   }
 
   wrapWithDriver(code: string, args: unknown[]): string | null {
-    // Strip comments, then check if the user already has explicit output
+    // Strip comments, then check if user already has top-level output.
+    // Only match print() at column 0 (indented print = inside a function body).
     const stripped = code.replace(/#[^\n]*/g, '')
-    if (/^\s*print\s*\(/m.test(stripped)) return null
+    if (/^print\s*\(/m.test(stripped)) return null
 
     const fnName = this.detectFunctionName(code)
     if (!fnName) return null

@@ -28,7 +28,7 @@ print("Hello, CodeRank!")
     color: '#F59E0B',
     iconName: 'code-2',
     defaultCode: `// JavaScript
-console.log("Hello, CodeRank!");
+console.log("Hello, CodeRank!")
 `,
   },
   {
@@ -39,9 +39,13 @@ console.log("Hello, CodeRank!");
     color: '#EF4444',
     iconName: 'code-2',
     defaultCode: `// Java
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, CodeRank!");
+        Scanner sc = new Scanner(System.in);
+        String line = sc.nextLine();
+        System.out.println(line);
     }
 }
 `,
@@ -55,9 +59,12 @@ public class Main {
     iconName: 'code-2',
     defaultCode: `// C++
 #include <iostream>
+#include <string>
 
 int main() {
-    std::cout << "Hello, CodeRank!" << std::endl;
+    std::string line;
+    std::getline(std::cin, line);
+    std::cout << line << std::endl;
     return 0;
 }
 `,

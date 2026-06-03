@@ -10,16 +10,38 @@ export class NodeRunner implements LanguageRunner {
   }
 
   wrapWithDriver(code: string, args: unknown[]): string | null {
-    // Strip comments, then check if the user already has explicit output
+    // Build stdin lines from args and embed them directly in the code so the
+    // container never needs Docker stdin piped.  This also gives users a
+    // global input() / readline() / lines without any require() boilerplate.
+    const stdinLines = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a)))
+
+    const preamble = `;(function(){
+  var __lines = ${JSON.stringify(stdinLines)};
+  var __idx   = 0;
+  global.input    = function(){ return __idx < __lines.length ? __lines[__idx++] : '' };
+  global.readline = global.input;
+  global.lines    = __lines;
+})();\n`
+
+    // Strip comments before structural analysis
     const stripped = code
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // block comments
-      .replace(/\/\/[^\n]*/g, '')          // line comments
-    if (/console\.log\s*\(/.test(stripped)) return null
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '')
+
+    // If console.log appears at brace-depth 0 the user handles their own output.
+    // Just prepend the stdin helpers and run the code as-is.
+    if (this.hasTopLevel(stripped, /console\.log\s*\(/)) {
+      return preamble + code
+    }
 
     const fnName = this.detectFunctionName(code)
-    if (!fnName) return null
+    if (!fnName) {
+      // No detectable top-level function — add helpers and run as-is
+      return preamble + code
+    }
 
-    // Embed args directly — no stdin piping needed
+    // Full driver: auto-call the function with the provided args, time it 3×,
+    // then print the return value (if any) and emit the timing marker.
     const driver = `
 // ── CodeRank driver ──
 ;(() => {
@@ -40,12 +62,38 @@ export class NodeRunner implements LanguageRunner {
   process.stderr.write('__CR_TIME__:' + Math.round(__times[1] / 1_000_000) + '\\n')
 })()`
 
-    return code + driver
+    return preamble + code + driver
+  }
+
+  /**
+   * Returns true if `pattern` matches somewhere at brace-depth 0
+   * (i.e. not inside a function / class / block body).
+   * Skips string literals to avoid false positives.
+   */
+  private hasTopLevel(code: string, pattern: RegExp): boolean {
+    let depth = 0
+    let inStr  = false
+    let strCh  = ''
+    let i      = 0
+    while (i < code.length) {
+      const ch = code[i]
+      if (inStr) {
+        if (ch === '\\') { i += 2; continue }
+        if (ch === strCh) inStr = false
+        i++; continue
+      }
+      if (ch === '"' || ch === "'" || ch === '`') {
+        inStr = true; strCh = ch; i++; continue
+      }
+      if (ch === '{') { depth++; i++; continue }
+      if (ch === '}') { depth--; i++; continue }
+      if (depth === 0 && pattern.test(code.slice(i))) return true
+      i++
+    }
+    return false
   }
 
   private detectFunctionName(code: string): string | null {
-    // Check top-level var/let/const assignments first — inner named functions like backTrack
-    // would otherwise match the function keyword pattern prematurely
     const patterns = [
       /(?:^|\n)(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?function/,
       /(?:^|\n)(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\(/,
