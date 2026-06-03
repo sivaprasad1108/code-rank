@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { CountdownTimer } from '@/features/war-rooms/components/nomination/CountdownTimer'
 import { ProblemVoteCard } from '@/features/war-rooms/components/voting/ProblemVoteCard'
@@ -9,7 +9,13 @@ import { Button } from '@/components/ui/Button'
 import { MOCK_PROBLEMS } from '@/features/war-rooms/data/mock'
 
 export default function VotePage() {
+  const { roomId } = useParams<{ roomId: string }>()
+  const router = useRouter()
   const [selectedId, setSelectedId] = useState<number | null>(null)
+
+  function handleComplete() {
+    router.push(`/war-rooms/${roomId}/battle`)
+  }
 
   return (
     <PageLayout>
@@ -20,7 +26,7 @@ export default function VotePage() {
         </div>
 
         <div className="flex flex-col items-center gap-6 mb-10">
-          <CountdownTimer initialSeconds={60} label="Time to vote" />
+          <CountdownTimer initialSeconds={15} label="Time to vote" onComplete={handleComplete} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -39,14 +45,9 @@ export default function VotePage() {
             variant="primary"
             size="lg"
             className="min-w-[180px]"
-            disabled={selectedId === null}
-            asChild={selectedId !== null}
+            onClick={handleComplete}
           >
-            {selectedId !== null ? (
-              <Link href="../battle">Confirm Vote &amp; Start</Link>
-            ) : (
-              <span>Select a problem first</span>
-            )}
+            {selectedId !== null ? 'Confirm Vote & Start' : 'Skip & Start Battle'}
           </Button>
         </div>
       </div>

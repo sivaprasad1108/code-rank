@@ -1,9 +1,19 @@
+'use client'
+
+import { useParams, useRouter } from 'next/navigation'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { CountdownTimer } from '@/features/war-rooms/components/nomination/CountdownTimer'
 import { ProblemNominator } from '@/features/war-rooms/components/nomination/ProblemNominator'
 import { NominationsPanel } from '@/features/war-rooms/components/nomination/NominationsPanel'
 
 export default function NominatePage() {
+  const { roomId } = useParams<{ roomId: string }>()
+  const router = useRouter()
+
+  function handleComplete() {
+    router.push(`/war-rooms/${roomId}/vote`)
+  }
+
   return (
     <PageLayout>
       <div className="max-w-[1100px] mx-auto px-6 py-8">
@@ -13,7 +23,7 @@ export default function NominatePage() {
         </div>
 
         <div className="flex flex-col items-center gap-6 mb-10">
-          <CountdownTimer initialSeconds={90} label="Time to nominate" />
+          <CountdownTimer initialSeconds={15} label="Time to nominate" onComplete={handleComplete} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">

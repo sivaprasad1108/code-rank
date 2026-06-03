@@ -3,7 +3,7 @@ import { ParticipantsPanel } from '@/features/war-rooms/components/lobby/Partici
 import { RoomInfoPanel } from '@/features/war-rooms/components/lobby/RoomInfoPanel'
 import { ActivityFeed } from '@/features/war-rooms/components/lobby/ActivityFeed'
 
-export default function RoomLobbyPage() {
+export default function RoomLobbyPage({ params }: { params: { roomId: string } }) {
   return (
     <PageLayout>
       <div className="max-w-[1200px] mx-auto px-6 py-8">
@@ -13,7 +13,7 @@ export default function RoomLobbyPage() {
             <ActivityFeed />
           </div>
           <div>
-            <RoomInfoPanel />
+            <RoomInfoPanel roomId={params.roomId} />
           </div>
         </div>
       </div>

@@ -17,9 +17,9 @@ const ROOM = {
   createdAt:  '2 min ago',
 }
 
-export function RoomInfoPanel() {
+export function RoomInfoPanel({ roomId }: { roomId: string }) {
   function copyInvite() {
-    navigator.clipboard?.writeText(`https://coderank.app/war-rooms/${ROOM.id}`)
+    navigator.clipboard?.writeText(`https://coderank.app/war-rooms/${roomId}`)
   }
 
   return (
@@ -85,7 +85,7 @@ export function RoomInfoPanel() {
       {/* Host controls */}
       <div className="p-4 border-t border-border space-y-2">
         <Button variant="primary" size="md" className="w-full gap-2" asChild>
-          <Link href="nominate">
+          <Link href={`/war-rooms/${roomId}/nominate`}>
             Start Match
             <ArrowRight size={14} />
           </Link>
