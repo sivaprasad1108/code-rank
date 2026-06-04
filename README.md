@@ -6,6 +6,8 @@ A full-stack online code execution platform with multi-language support, Docker 
 **API:** http://161.118.182.142:3001/api/v1  
 **GitHub:** https://github.com/sivaprasad1108/code-rank
 
+For detailed system diagrams — topology, execution flow, auth, DB schema, and deployment — see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
 ---
 
 ## Table of Contents
