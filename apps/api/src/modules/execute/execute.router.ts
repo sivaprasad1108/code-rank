@@ -1,0 +1,31 @@
+import type { FastifyInstance } from 'fastify'
+import { ExecuteRequestSchema } from '@coderank/types'
+import { ExecuteService } from './execute.service'
+import { apiSuccess } from '@/common/utils/response'
+import { optionalAuth } from '@/common/middleware/auth.middleware'
+
+export async function executeRoutes(app: FastifyInstance) {
+  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'
+  const service = new ExecuteService(app.redis, redisUrl)
+
+  // POST /execute — submit code for execution
+  // Stricter rate limit: 10 executions per minute per IP (compute-heavy endpoint)
+  app.post('/execute', {
+    config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+    preHandler: [optionalAuth],
+    handler: async (request, reply) => {
+      const body = ExecuteRequestSchema.parse(request.body)
+      const result = await service.submit(body)
+      return reply.status(202).send(apiSuccess(result))
+    },
+  })
+
+  // GET /execute/:jobId — poll for result
+  app.get<{ Params: { jobId: string } }>('/execute/:jobId', {
+    handler: async (request, reply) => {
+      const { jobId } = request.params
+      const result = await service.getResult(jobId)
+      return reply.send(apiSuccess(result))
+    },
+  })
+}
