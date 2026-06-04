@@ -16,7 +16,7 @@ export default function NominatePage() {
 
   return (
     <PageLayout>
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="max-w-[1300px] mx-auto px-6 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-text-primary mb-2">Nomination Phase</h1>
           <p className="text-sm text-text-muted">Submit a problem for this battle. Everyone can see nominations.</p>

@@ -24,7 +24,7 @@ export function PlaygroundLayout({ onSave }: PlaygroundLayoutProps) {
   }, [run])
 
   return (
-    <div className="flex h-[calc(100dvh-56px)] overflow-hidden bg-bg-primary">
+    <div className="flex h-[calc(100dvh-3.5rem)] overflow-hidden bg-bg-primary">
 
       {/* ── Desktop layout: sidebar + editor + output ── */}
       <div className="hidden md:flex flex-1 overflow-hidden">
@@ -50,8 +50,8 @@ export function PlaygroundLayout({ onSave }: PlaygroundLayoutProps) {
             aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           >
             {sidebarOpen
-              ? <PanelLeftClose size={14} />
-              : <PanelLeftOpen  size={14} />
+              ? <PanelLeftClose size={16} />
+              : <PanelLeftOpen  size={16} />
             }
           </button>
         </div>

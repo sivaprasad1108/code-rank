@@ -11,17 +11,17 @@ export default function FeedPage() {
     <PageLayout>
       {/* Page header */}
       <div className="border-b border-border bg-bg-surface">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
-          <h1 className="text-2xl font-bold text-text-primary tracking-tight mb-1">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 py-8">
+          <h1 className="text-3xl font-bold text-text-primary tracking-tight mb-1">
             Snippets
           </h1>
-          <p className="text-sm text-text-muted">
+          <p className="text-base text-text-muted">
             Runnable code snippets shared by the community
           </p>
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 py-8">
         <FeedList />
       </div>
     </PageLayout>

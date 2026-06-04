@@ -36,7 +36,7 @@ const METRICS = [
 export function PlatformMetrics() {
   return (
     <section className="px-6 pb-8">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="max-w-[1920px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
         {METRICS.map((m) => (
           <GlassCard key={m.label} padding="md" className="relative">
             <div className="flex items-start justify-between mb-3">

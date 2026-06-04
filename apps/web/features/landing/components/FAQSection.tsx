@@ -14,7 +14,7 @@ export function FAQSection({ section }: Props) {
 
   return (
     <section className="py-24 px-6 sm:px-8">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         <div className="grid lg:grid-cols-[380px_1fr] gap-16 items-start">
 
           {/* Left — header (sticky on desktop) */}

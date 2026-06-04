@@ -10,7 +10,7 @@ export function SpectatorSection() {
 
   return (
     <section className="px-6 pb-16">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         <div className="flex items-center gap-3 mb-5">
           <Eye size={18} className="text-accent" />
           <div>

@@ -19,7 +19,7 @@ export default function VotePage() {
 
   return (
     <PageLayout>
-      <div className="max-w-[900px] mx-auto px-6 py-8">
+      <div className="max-w-[1300px] mx-auto px-6 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-text-primary mb-2">Vote for a Problem</h1>
           <p className="text-sm text-text-muted">The problem with the most votes will be used for this battle.</p>

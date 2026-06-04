@@ -43,7 +43,7 @@ export function PublicRoomsTable() {
 
   return (
     <section className="px-6 pb-10">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-lg font-semibold text-text-primary">Public Rooms</h2>

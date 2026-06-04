@@ -31,7 +31,7 @@ const FOOTER_COLS = [
 export function Footer() {
   return (
     <footer className="border-t border-border bg-bg-surface">
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-8 py-12">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-8 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-[200px_repeat(3,1fr)] gap-8 mb-12">
 
           {/* Brand */}

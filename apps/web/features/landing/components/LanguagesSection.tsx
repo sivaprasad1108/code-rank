@@ -7,7 +7,7 @@ interface Props {
 export function LanguagesSection({ section }: Props) {
   return (
     <section className="relative py-24 px-6 sm:px-8 overflow-hidden">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         <div className="grid lg:grid-cols-[1fr_1fr] gap-16 items-center">
 
           {/* Left — copy */}

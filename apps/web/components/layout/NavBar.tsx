@@ -18,17 +18,17 @@ export function NavBar() {
     <header className="fixed top-0 inset-x-0 z-[200] h-14">
       {/* Glass backdrop */}
       <div className="h-full border-b border-border bg-bg-surface/80 backdrop-blur-xl">
-        <nav className="h-full max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center gap-6">
+        <nav className="h-full max-w-[1920px] mx-auto px-4 sm:px-6 flex items-center gap-6">
 
           {/* ── Logo ── */}
           <Link
             href={ROUTES.HOME}
             className="flex items-center gap-2 shrink-0 group"
           >
-            <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center shadow-glow-sm group-hover:shadow-glow transition-all duration-[var(--duration-normal)]">
-              <Terminal size={13} className="text-white" />
+            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-glow-sm group-hover:shadow-glow transition-all duration-[var(--duration-normal)]">
+              <Terminal size={15} className="text-white" />
             </div>
-            <span className="font-bold text-sm tracking-tight text-gradient hidden sm:inline">
+            <span className="font-bold text-base tracking-tight text-gradient hidden sm:inline">
               CodeRank
             </span>
           </Link>
@@ -54,7 +54,7 @@ export function NavBar() {
                 >
                   {link.label}
                   {link.badge && (
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wide bg-accent/15 text-accent border border-accent/25 leading-none">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-accent/15 text-accent border border-accent/25 leading-none">
                       {link.badge}
                     </span>
                   )}
@@ -78,7 +78,7 @@ export function NavBar() {
               <>
                 {/* Pro badge */}
                 <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent/10 border border-accent/25 text-accent text-xs font-semibold">
-                  <Zap size={10} className="fill-accent" />
+                  <Zap size={11} className="fill-accent" />
                   Pro
                 </div>
 
@@ -93,7 +93,7 @@ export function NavBar() {
                     <span className="hidden sm:inline text-xs text-text-muted font-medium max-w-[80px] truncate">
                       {user.username}
                     </span>
-                    <ChevronDown size={12} className="text-text-subtle" />
+                    <ChevronDown size={14} className="text-text-subtle" />
                   </button>
 
                   {/* Dropdown */}

@@ -11,7 +11,7 @@ export function FeaturesSection({ section }: Props) {
       {/* Background glow */}
       <div aria-hidden className="absolute left-1/2 -translate-x-1/2 top-0 w-[800px] h-[400px] bg-accent/5 blur-[100px] rounded-full pointer-events-none" />
 
-      <div className="relative max-w-[1400px] mx-auto">
+      <div className="relative max-w-[1920px] mx-auto">
         {/* Header */}
         <div className="max-w-2xl mb-16">
           <p className="text-accent text-sm font-semibold mb-3 tracking-wide uppercase">

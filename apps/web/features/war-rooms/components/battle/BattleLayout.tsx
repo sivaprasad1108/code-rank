@@ -13,25 +13,25 @@ import { LiveChat } from './LiveChat'
 import { BattleOutputPanel } from './BattleOutputPanel'
 
 // ── Size constraints ───────────────────────────────────────────────────────────
-const LEFT_MIN      = 180
-const LEFT_MAX      = 380
-const LEFT_DEF      = 220
+const LEFT_MIN      = 210
+const LEFT_MAX      = 440
+const LEFT_DEF      = 260
 
-const RIGHT_MIN     = 220
-const RIGHT_MAX     = 440
-const RIGHT_DEF     = 280
+const RIGHT_MIN     = 260
+const RIGHT_MAX     = 500
+const RIGHT_DEF     = 320
 
-const PROBLEM_MIN   = 120
-const PROBLEM_MAX   = 360
-const PROBLEM_DEF   = 165
-const PROBLEM_HDR   = 44   // collapsed: just the header row
+const PROBLEM_MIN   = 140
+const PROBLEM_MAX   = 400
+const PROBLEM_DEF   = 200
+const PROBLEM_HDR   = 50   // collapsed: just the header row
 
-const OUTPUT_MIN    = 100
-const OUTPUT_MAX    = 460
-const OUTPUT_DEF    = 172
-const OUTPUT_HDR    = 38   // collapsed: just the tabs row
+const OUTPUT_MIN    = 120
+const OUTPUT_MAX    = 520
+const OUTPUT_DEF    = 200
+const OUTPUT_HDR    = 44   // collapsed: just the tabs row
 
-const RAIL_W        = 52   // collapsed side-panel rail
+const RAIL_W        = 60   // collapsed side-panel rail
 
 const ELAPSED       = '06:12'
 const TIME_LEFT     = '23:48'
@@ -198,7 +198,7 @@ export function BattleLayout({ roomId }: { roomId: string }) {
     <div className="flex flex-col bg-bg-primary" style={{ height: '100dvh', overflow: 'hidden' }}>
 
       {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 px-4 bg-bg-surface border-b border-border shrink-0" style={{ height: 40 }}>
+      <div className="flex items-center gap-3 px-4 bg-bg-surface border-b border-border shrink-0" style={{ height: 48 }}>
         {/* Live indicator + room name */}
         <div className="flex items-center gap-2 min-w-0">
           <span className="relative flex h-2 w-2 shrink-0">
@@ -238,8 +238,8 @@ export function BattleLayout({ roomId }: { roomId: string }) {
           {leftOpen
             ? <ParticipantsSidebar />
             : <PeekRail side="left" onExpand={() => setLeftOpen(true)} icons={[
-                { icon: <Users size={15} />,  label: 'Players'   },
-                { icon: <Trophy size={15} />, label: 'Standings' },
+                { icon: <Users size={16} />,  label: 'Players'   },
+                { icon: <Trophy size={16} />, label: 'Standings' },
               ]} />
           }
         </div>
@@ -286,8 +286,8 @@ export function BattleLayout({ roomId }: { roomId: string }) {
             </>
           ) : (
             <PeekRail side="right" onExpand={() => setRightOpen(true)} icons={[
-              { icon: <Trophy size={15} />,        label: 'Leaderboard' },
-              { icon: <MessageSquare size={15} />, label: 'Chat'        },
+              { icon: <Trophy size={16} />,        label: 'Leaderboard' },
+              { icon: <MessageSquare size={16} />, label: 'Chat'        },
             ]} />
           )}
         </div>

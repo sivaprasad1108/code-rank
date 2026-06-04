@@ -15,7 +15,7 @@ export function DiscoveryHero({ onCreateRoom }: DiscoveryHeroProps) {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/8 rounded-full blur-[100px]" />
       </div>
 
-      <div className="relative max-w-[1400px] mx-auto">
+      <div className="relative max-w-[1920px] mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <div>
             {/* Label */}

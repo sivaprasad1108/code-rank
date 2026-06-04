@@ -51,7 +51,7 @@ export default async function SnippetPage({ params }: Props) {
 
   return (
     <PageLayout>
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 py-8">
 
         {/* Back link */}
         <Link
@@ -62,7 +62,7 @@ export default async function SnippetPage({ params }: Props) {
           Back to snippets
         </Link>
 
-        <div className="grid lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-8 items-start">
+        <div className="grid lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px] gap-8 items-start">
 
           {/* ── Main content ── */}
           <div className="flex flex-col gap-6 min-w-0">
@@ -71,7 +71,7 @@ export default async function SnippetPage({ params }: Props) {
             <div className="flex flex-col gap-3">
               <div className="flex items-start gap-3 justify-between">
                 <div className="flex flex-col gap-1.5 min-w-0">
-                  <h1 className="text-xl font-bold text-text-primary leading-tight tracking-tight">
+                  <h1 className="text-2xl font-bold text-text-primary leading-tight tracking-tight">
                     {snippet.title}
                   </h1>
                   {snippet.description && (
@@ -109,12 +109,12 @@ export default async function SnippetPage({ params }: Props) {
             <CodeBlock
               code={snippet.code}
               language={snippet.language}
-              maxHeight="520px"
+              maxHeight="640px"
             />
 
             {/* Comments */}
             <div className="border-t border-border pt-6">
-              <h2 className="text-sm font-semibold text-text-primary mb-4">
+              <h2 className="text-base font-semibold text-text-primary mb-4">
                 Comments
               </h2>
               <CommentThread snippetSlug={snippet.slug} />
@@ -127,7 +127,7 @@ export default async function SnippetPage({ params }: Props) {
             {/* Execution Result card */}
             <div className="rounded-xl border border-border bg-bg-elevated overflow-hidden">
               <div className="px-4 py-3 border-b border-border bg-bg-surface">
-                <span className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider">
+                <span className="text-xs font-semibold text-text-subtle uppercase tracking-wider">
                   Execution Result
                 </span>
               </div>
@@ -149,7 +149,7 @@ export default async function SnippetPage({ params }: Props) {
             {author && (
               <div className="rounded-xl border border-border bg-bg-elevated overflow-hidden">
                 <div className="px-4 py-3 border-b border-border bg-bg-surface">
-                  <span className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-text-subtle uppercase tracking-wider">
                     About Author
                   </span>
                 </div>
@@ -197,7 +197,7 @@ export default async function SnippetPage({ params }: Props) {
 function SidebarMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 px-2.5 py-2 rounded-lg bg-bg-overlay border border-border">
-      <span className="text-[9px] text-text-subtle uppercase tracking-wide">{label}</span>
+      <span className="text-[10px] text-text-subtle uppercase tracking-wide">{label}</span>
       <span className="text-xs font-semibold text-text-primary font-code">{value}</span>
     </div>
   )

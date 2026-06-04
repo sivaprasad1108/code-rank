@@ -50,7 +50,7 @@ export function HeroSection({ section }: Props) {
       <div aria-hidden className="absolute top-1/4 right-[-10%] w-[600px] h-[600px] rounded-full bg-accent/5 blur-[100px] pointer-events-none" />
 
       {/* ── Main hero content ── */}
-      <div className="relative z-10 flex-1 flex items-center max-w-[1400px] mx-auto w-full px-6 sm:px-8 lg:px-12 pt-28 pb-16 lg:pt-32 lg:pb-20">
+      <div className="relative z-10 flex-1 flex items-center max-w-[1920px] mx-auto w-full px-6 sm:px-8 lg:px-12 pt-28 pb-16 lg:pt-32 lg:pb-20">
         <div className="w-full grid lg:grid-cols-[1fr_1fr] gap-12 xl:gap-20 items-center">
 
           {/* Left — copy */}
@@ -181,7 +181,7 @@ export function HeroSection({ section }: Props) {
 
       {/* ── Stats bar ── */}
       <div className="relative z-10 border-t border-border bg-bg-surface/50 backdrop-blur-sm py-5 px-6 sm:px-8">
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-[1920px] mx-auto">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Stat pills */}
             <div className="flex items-center gap-8 flex-wrap justify-center sm:justify-start">

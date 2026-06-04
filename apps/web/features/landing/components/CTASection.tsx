@@ -10,7 +10,7 @@ interface Props {
 export function CTASection({ section }: Props) {
   return (
     <section className="py-24 px-6 sm:px-8">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         <div className="relative rounded-2xl overflow-hidden border border-border-accent bg-bg-elevated">
           {/* Background effects */}
           <div aria-hidden className="absolute inset-0 bg-accent/5 pointer-events-none" />
