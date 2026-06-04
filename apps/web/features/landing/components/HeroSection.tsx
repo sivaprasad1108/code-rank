@@ -29,14 +29,6 @@ const COLOR_MAP: Record<string, string> = {
   default:  '#E8ECF8',
 }
 
-const STATS = [
-  { value: '100+',   label: 'Developers' },
-  { value: '150+',   label: 'Executions' },
-  { value: '99.99%', label: 'Uptime' },
-  { value: '<50ms',  label: 'Avg latency' },
-]
-
-const TRUSTED_BY = ['Google', 'Amazon', 'Spotify', 'Atlassian', 'Netflix', 'Apple', 'Twitch']
 
 interface Props { section: HeroSectionType }
 
@@ -179,42 +171,6 @@ export function HeroSection({ section }: Props) {
         </div>
       </div>
 
-      {/* ── Stats bar ── */}
-      <div className="relative z-10 border-t border-border bg-bg-surface/50 backdrop-blur-sm py-5 px-6 sm:px-8">
-        <div className="max-w-[1920px] mx-auto">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Stat pills */}
-            <div className="flex items-center gap-8 flex-wrap justify-center sm:justify-start">
-              {STATS.map((stat) => (
-                <div key={stat.label} className="flex flex-col items-center sm:items-start gap-0.5">
-                  <span className="font-bold text-2xl text-text-primary tracking-tight">
-                    {stat.value}
-                  </span>
-                  <span className="text-sm text-text-subtle">{stat.label}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Divider */}
-            <div className="hidden sm:block h-8 w-px bg-border mx-2" />
-
-            {/* Trusted by */}
-            <div className="flex items-center gap-4 flex-wrap justify-center">
-              <span className="text-xs text-text-subtle shrink-0">Trusted by devs at</span>
-              <div className="flex items-center gap-4 flex-wrap">
-                {TRUSTED_BY.map((company) => (
-                  <span
-                    key={company}
-                    className="text-xs font-semibold text-text-subtle/70 hover:text-text-muted transition-colors tracking-wide uppercase"
-                  >
-                    {company}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   )
 }

@@ -72,8 +72,8 @@ export function ComingSoonModal({ isOpen, onContinue, onClose }: ComingSoonModal
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-text-primary">War Rooms</h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold tracking-widest bg-warning/10 text-warning border border-warning/25">
-                  <FlaskConical size={9} />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold tracking-widest bg-warning/10 text-warning border border-warning/25">
+                  <FlaskConical size={11} />
                   COMING SOON
                 </span>
               </div>
